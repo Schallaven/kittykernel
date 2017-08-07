@@ -84,6 +84,7 @@ class KittykeMainWindow():
 
             # Main window handle
             self.window = self.builder.get_object("kittykewindow")
+            self.window.set_icon_from_file("/usr/lib/kittykernel/kittykernel.svg")
             self.window.show_all()  
 
             # Update some things initially
@@ -292,11 +293,12 @@ class KittykeMainWindow():
         dlg.set_program_name("kittykernel")
         dlg.set_comments(_("Kernel manager"))
         dlg.set_authors(["Sven Kochmann"])
-        dlg.set_icon_name("kittykernel")
-        dlg.set_logo_icon_name("kittykernel")
+        dlg.set_icon_from_file("/usr/lib/kittykernel/kittykernel.svg")
+        dlg.set_default_icon_from_file("/usr/lib/kittykernel/kittykernel.svg")
+        dlg.set_logo(GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/kittykernel.svg", 256, 256, True))
         dlg.set_website("http://www.github.com/schallaven/kittykernel")
         dlg.set_transient_for(self.window)        
-        dlg.set_version("0.1")
+        dlg.set_version("1.0")
 
         # Read in the GPL file to display the license text and button
         try:
