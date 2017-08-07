@@ -1,0 +1,14 @@
+Package: kittykernel
+Version: 1.0
+Maintainer: Sven Kochmann
+Architecture: all
+Section: admin
+Priority: optional
+Homepage: https://github.com/Schallaven/kittykernel
+Installed-size: 139
+Description: Maow all your kernel needs!
+ kittykernel is a handy tool that helps you to 
+ organize, install, remove, and purge kernels in and from 
+ your system with a GUI.
+Depends: python3 (>= 3.5.1), python3-setproctitle (>= 1.1.8), python3-apt (>=1.1), python3-gi (>=3.20), gir1.2-gtk-3.0 (>=3.18)
+

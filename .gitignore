@@ -1,2 +1,6 @@
 .pyc
 __pycache__
+kittykernel.deb
+debian.deb
+debian/usr
+

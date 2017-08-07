@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -R debian/usr
+cp -R usr debian
+dpkg-deb --build debian
+mv debian.deb kittykernel.deb
+
+
+
+
