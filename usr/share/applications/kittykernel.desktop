@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=KittyKernel
+Comment=Maowing all your kernel needs!
+Exec=kittykernel
+Icon=/usr/share/icons/gnome-colors-common/scalable/apps/system-config-securitylevel.svg
+Type=Application
+Categories=Settings;
+NoDisplay=false
+X-KDE-StartupNotify=false
+StartupNotify=false

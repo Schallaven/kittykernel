@@ -1,0 +1,8 @@
+#!/bin/bash
+
+sudo rm -rf /usr/lib/kittykernel
+sudo rm /usr/bin/kittykernel
+sudo rm /usr/share/applications/kittykernel.desktop
+sudo cp -R usr /
+
+
