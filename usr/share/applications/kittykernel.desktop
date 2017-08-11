@@ -2,7 +2,7 @@
 Name=KittyKernel
 Comment=Maowing all your kernel needs!
 Exec=kittykernel
-Icon=/usr/share/icons/gnome-colors-common/scalable/apps/system-config-securitylevel.svg
+Icon=/usr/lib/kittykernel/kittykernel.svg
 Type=Application
 Categories=Settings;
 NoDisplay=false
