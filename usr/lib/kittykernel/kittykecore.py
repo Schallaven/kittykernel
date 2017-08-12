@@ -238,7 +238,11 @@ def get_kernel_changelog(fullname):
 # ('install', pkg1), ('remove', pkg2), or ('purge', pkg3); this function does not check for additional
 # packages to be installed or removed (just the dependencies)
 def pkg_perform_operations(operations, xwindow_id = 0):
-    print(operations)
+    global debugmode
+
+    if debugmode:
+        print("pkg_perform_operations: ", operations)
+
     if type(operations) is not list:
         return -1
 
@@ -294,9 +298,11 @@ def pkg_perform_operations(operations, xwindow_id = 0):
 
 # Installs/Removes/Purges a list of kernels with extra package (if available) and headers
 def perform_kernels(fullnames, verb, xwindow_id = 0, headers = True, extras = True):
-    global cache
-    try:        
-        print("test", fullnames, verb)
+    global cache, debugmode
+    try:
+        if debugmode:        
+            print("Perform_kernels:", fullnames, verb)
+
         # Our operation list
         operations = []
 
