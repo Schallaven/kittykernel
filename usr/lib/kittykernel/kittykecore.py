@@ -263,7 +263,8 @@ def pkg_perform_operations(operations, xwindow_id = 0):
             # Write to temp file
             f.write( ("%s\t%s\n" % (op[1], op[0])).encode("utf-8") )
 
-            print(op)
+            if debugmode:
+                print(op)
 
         # Write everything to the file
         f.flush()
@@ -279,8 +280,9 @@ def pkg_perform_operations(operations, xwindow_id = 0):
         # get output
         stdout, stderr = out.communicate()
 
-        print(stdout.read())
-        print(stderr.read())
+        if debugmode:
+        	print(stdout.read())
+        	print(stderr.read())
 
         return 0
         
