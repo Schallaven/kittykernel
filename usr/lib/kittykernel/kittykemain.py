@@ -487,7 +487,7 @@ class KittykeMainWindow():
 
             # Is this kernel _not_ installed?
             if not self.kernels[index]['installed']:
-                kittykecore.perform_kernels( [self.kernels[index]['fullname']], 'install', self.window.get_window().get_xid())
+                kittykecore.perform_kernels( [self.kernels[index]['package']], 'install', self.window.get_window().get_xid())
                 self.do_refresh(False)
 
     # Removes a kernel
@@ -509,7 +509,7 @@ class KittykeMainWindow():
 
             # Is this kernel installed?
             if self.kernels[index]['installed']:
-                kittykecore.perform_kernels( [self.kernels[index]['fullname']], 'remove', self.window.get_window().get_xid())
+                kittykecore.perform_kernels( [self.kernels[index]['package']], 'remove', self.window.get_window().get_xid())
                 self.do_refresh(False)
 
     # Purges a kernel
@@ -531,7 +531,7 @@ class KittykeMainWindow():
 
             # Is this kernel installed?
             if self.kernels[index]['installed'] or self.kernels[index]['downloaded']:
-                kittykecore.perform_kernels( [self.kernels[index]['fullname']], 'purge', self.window.get_window().get_xid())
+                kittykecore.perform_kernels( [self.kernels[index]['package']], 'purge', self.window.get_window().get_xid())
                 self.do_refresh(False)
 
     # Purges all kernels except the active one
@@ -550,7 +550,7 @@ class KittykeMainWindow():
 
             # Is installed? Then purge!
             if kernel['installed'] or kernel['downloaded']:
-                kernels_to_purge.append(kernel['fullname'])
+                kernels_to_purge.append(kernel['package'])
 
         # No kernels selected? Display a messagebox
         if len(kernels_to_purge) == 0:
@@ -594,7 +594,7 @@ class KittykeMainWindow():
 
             # Kernel should be installed; if yes -> add
             if self.kernels[index]['installed']:
-                kernels_to_remove.append(self.kernels[index]['fullname'])
+                kernels_to_remove.append(self.kernels[index]['package'])
 
             # Next element
             treeiter = model.iter_next(treeiter)           
@@ -642,7 +642,7 @@ class KittykeMainWindow():
 
             # Kernel should be installed; if yes -> add
             if self.kernels[index]['installed'] or self.kernels[index]['downloaded']:
-                kernels_to_purge.append(self.kernels[index]['fullname'])
+                kernels_to_purge.append(self.kernels[index]['package'])
 
             # Next element
             treeiter = model.iter_next(treeiter)           
