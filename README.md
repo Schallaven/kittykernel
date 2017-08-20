@@ -14,7 +14,9 @@ administrate the core of the system.
 
 ## Installation
 
-Download or clone the repository. A handy *install* script is provided for convenience:
+Easiest and most common way: Just download the debian package under [*releases*](https://github.com/Schallaven/kittykernel/releases). This way, all necessary packages are installed.
+
+Alternatively, download or clone the repository for the latest version. A handy *install* script is provided for convenience:
 
 ```bash
 # ./install
