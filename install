@@ -1,8 +1,25 @@
 #!/bin/bash
 
-sudo rm -rf /usr/lib/kittykernel
-sudo rm /usr/bin/kittykernel
-sudo rm /usr/share/applications/kittykernel.desktop
+# Check for root rights
+if [[ $EUID -ne 0 ]]; then
+   echo "This install script must be run as root" 1>&2
+   exit 1
+fi
+
+# This will remove old kittykernel versions, if present
+if [ -d "/usr/lib/kittykernel" ]; then
+    echo "Removing old kittykernel version..."
+    sudo rm -rf /usr/lib/kittykernel
+    sudo rm /usr/bin/kittykernel
+    sudo rm /usr/share/applications/kittykernel.desktop
+else
+    echo "No old kittykernel version found in /usr/lib/kittykernel."
+fi
+
+# Copy the kittykernel files to /usr
+echo "Copying the kittykernel files to /usr..."
 sudo cp -R usr /
+
+
 
 
