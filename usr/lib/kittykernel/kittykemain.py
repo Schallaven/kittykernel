@@ -131,7 +131,7 @@ class KittykeMainWindow():
 
         cr = Gtk.CellRendererText()
         columns[0].pack_start(cr, expand=True)
-        columns[0].add_attribute(cr, 'text', Columns.KITTYKE_KERNEL.value)
+        columns[0].add_attribute(cr, 'markup', Columns.KITTYKE_KERNEL.value)
 
         # Second column is a pixbuf
         cr = Gtk.CellRendererPixbuf()
@@ -162,13 +162,27 @@ class KittykeMainWindow():
                 parent = None
                 for row in model:
                     # If there is a parent, get its 'iter'
-                    if row.parent == None and row[1] == kernel['version_major']:
+                    if row.parent == None and row[1].startswith(kernel['version_major'] + " ("):
                         parent = row.iter
                         break
 
                 # Should there be no parent, than add a new one with this major version and a cog symbol; data index should be -1
                 if parent == None:
-                    parent = model.append(None, [self.theme.load_icon("gtk-execute", 22, 0), kernel['version_major'], None, "", "", "", "", "", -1])
+                    # First, determine how many kernels of this version are downloaded, installed, and available
+                    num_available = [1 if x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
+                    num_downloaded = [1 if x['downloaded'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
+                    num_installed = [1 if x['installed'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)                    
+
+                    # Second, is the active kernel in the current list?
+                    has_active_kernel = ([1 if x['active'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1) > 0)                    
+
+                    # Third, create the string for this top-level node
+                    node_markup = ["<span foreground='%s'>%s</span>" % (self.config['active_color'], kernel['version_major']) if has_active_kernel else kernel['version_major']][0]
+                    node_markup += " (<span foreground='%s'>%d</span>" % (self.config['downloaded_color'], num_downloaded)
+                    node_markup += ", <span foreground='%s'>%d</span>" % (self.config['installed_color'], num_installed)
+                    node_markup += ", %d)" % (num_available)
+
+                    parent = model.append(None, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, None, "", "", "", "", "", -1])
 
                 # Show a symbol if the kernel is installed (checkmark)
                 pixbufinstalled = [self.theme.load_icon("gtk-yes", 22, 0) if kernel["installed"] else None][0]
@@ -227,7 +241,6 @@ class KittykeMainWindow():
     # Updates the changelog (mainly the colors)
     def update_changelog(self):
         self.changelogview.get_buffer().set_text(self.changelog)
-        pass
 
     # Closes the window and exits kittykernel
     def close_window(self, window, event):
@@ -299,16 +312,10 @@ class KittykeMainWindow():
         dlg.set_website("http://www.github.com/schallaven/kittykernel")
         dlg.set_transient_for(self.window)        
         dlg.set_version("1.0")
+        dlg.set_license_type(Gtk.License.GPL_3_0)
 
-        # Read in the GPL file to display the license text and button
-        try:
-            gpl = ""
-            with open('/usr/share/common-licenses/GPL','r') as licensefile:
-                gpl = licensefile.read()            
-            dlg.set_license(gpl)
-        except Exception as e:
-            print (e)
-            print(sys.exc_info()[0])
+        # Contributors, who contributed in form of PRs
+        dlg.add_credit_section("Github contributors", ["Fred-Barclay"])
 
         # Run and destroy dialog afterwards        
         dlg.run()
