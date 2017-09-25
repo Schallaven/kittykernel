@@ -103,7 +103,16 @@ class KittykeMainWindow():
 
     # Initial refresh after startup
     def init_refresh(self):
+        # Do the actual refresh
         self.do_refresh(False)
+
+        # Show fancy messagebox with warning and explaination to the user
+        warningbox = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, _("KittyKernel updates the Linux operating system kernel, also called Linux."))
+        warningbox.format_secondary_text(_("Updating can help hardware support and performance. "
+              "If your system does not start after updating, hold shift while booting, select Mambo, and dance like you never have before."))
+        warningbox.run()
+        warningbox.destroy()
+
         return False
 
     # This function setups the cellrenderers of the treeview
@@ -324,6 +333,9 @@ class KittykeMainWindow():
 
         # Contributors, who contributed in form of PRs
         dlg.add_credit_section("Github contributors", ["Fred-Barclay"])
+
+        # Contributors, who contributed from #linux on Spotchat
+        dlg.add_credit_section("#linux (Spotchat) contributors", ["Mr W.", "Mr T."])
 
         # Run and destroy dialog afterwards        
         dlg.run()
