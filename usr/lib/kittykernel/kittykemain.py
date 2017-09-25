@@ -78,6 +78,9 @@ class KittykeMainWindow():
             # Setup the treeview
             self.setup_treeview()
 
+            # Initial message for the info bar
+            self.builder.get_object("current_kernel").set_label(_("Refreshing, please wait..."))
+
             # The changelog needs a monospace font
             self.changelogview = self.builder.get_object("changelogview")
             self.changelogview.modify_font(Pango.FontDescription("Monospace")) 
@@ -85,10 +88,7 @@ class KittykeMainWindow():
             # Main window handle
             self.window = self.builder.get_object("kittykewindow")
             self.window.set_icon_from_file("/usr/lib/kittykernel/kittykernel.svg")
-            self.window.show_all()  
-
-            # Update some things initially
-            self.update_infobar()         
+            self.window.show_all()                  
 
             # Hesitate a little bit with updating, so that the user sees the window before the actual first update happens
             GLib.timeout_add(1000, self.init_refresh)            
@@ -232,11 +232,19 @@ class KittykeMainWindow():
         # Size of /boot
         sizeofboot = kittykecore.sizeof_boot()
 
+        # Size of all kernels, downloaded and installed
+        sizeofkernels = 0
+
+        for kernel in self.kernels:
+            if kernel['installed']:
+                sizeofkernels += kernel['installed_size']
+            elif kernel['downloaded']:
+                sizeofkernels += kernel['size']
+
         # Construct the text
-        self.builder.get_object("current_kernel").set_label( _("Current kernel version") + 
-                                                             ": <b>" + kittykecore.get_current_kernel() + "</b>. " +
-                                                             _("Free space on /boot") +
-                                                             ": <b>%s</b> (%s in total)" % (kittykecore.sizeof_fmt(sizeofboot[0]), kittykecore.sizeof_fmt(sizeofboot[1])) )
+        self.builder.get_object("current_kernel").set_label( _("Current kernel version: <b>%s</b>. ") % (kittykecore.get_current_kernel()) \
+                                                           + _("/boot: <b>%s</b> of %s free. ") % (kittykecore.sizeof_fmt(sizeofboot[0]), kittykecore.sizeof_fmt(sizeofboot[1])) \
+                                                           + _("Kernels occupy <b>%s</b> of space.") % (kittykecore.sizeof_fmt(sizeofkernels)) )
 
     # Updates the changelog (mainly the colors)
     def update_changelog(self):
@@ -272,16 +280,16 @@ class KittykeMainWindow():
         # Refresh cache by the method provided by the core functions
         if update:
             self.set_progress( _("Updating cache..."), 0.20)    
-            kittykecore.refresh_cache(self.window.get_window().get_xid())
-
-        # Update the info bar with current kernel and size of /boot
-        self.set_progress( _("Updating current kernel and /boot..."), 0.40)    
-        self.update_infobar()
+            kittykecore.refresh_cache(self.window.get_window().get_xid())        
 
         # Fill the kernel list
-        self.set_progress( _("Filling kernel list..."), 0.60)   
+        self.set_progress( _("Filling kernel list..."), 0.40)   
         kittykecore.reopen_cache() 
         self.fill_kernel_list()
+
+        # Update the info bar with current kernel and size of /boot
+        self.set_progress( _("Updating current kernel and /boot..."), 0.60)    
+        self.update_infobar()
 
         # Update changelog
         self.set_progress( _("Update change log..."), 0.80)    
