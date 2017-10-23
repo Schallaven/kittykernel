@@ -67,6 +67,9 @@ class KittykeMainWindow():
             self.config['installed_color'] = "#006000"
             self.config['downloaded_color'] = "#000060"
 
+            # Read blacklist
+            self.blacklist = kittykecore.load_blacklist()
+
             # Create the GtkBuilder with the respective glade file of our main window
             self.builder = Gtk.Builder()
             self.builder.add_from_file("/usr/lib/kittykernel/kittykernel.ui")
@@ -164,6 +167,9 @@ class KittykeMainWindow():
 
             # Get kernels
             self.kernels = kittykecore.get_kernels()
+
+            # Apply blacklist to the kernel list
+            self.kernels = kittykecore.apply_blacklist(self.kernels, self.blacklist)
 
             # Add kernels to model
             for index, kernel in enumerate(self.kernels):   
@@ -328,7 +334,7 @@ class KittykeMainWindow():
         dlg.set_logo(GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/kittykernel.svg", 256, 256, True))
         dlg.set_website("http://www.github.com/schallaven/kittykernel")
         dlg.set_transient_for(self.window)        
-        dlg.set_version("1.0")
+        dlg.set_version("1.1")
         dlg.set_license_type(Gtk.License.GPL_3_0)
 
         # Contributors, who contributed in form of PRs
@@ -348,6 +354,10 @@ class KittykeMainWindow():
     # Open kernel.org
     def on_goto_kernelorg(self, widget):
         Gtk.show_uri(None, "https://www.kernel.org/", Gtk.get_current_event_time())
+
+    # Opens default editor for editing the blacklist
+    def on_blacklistedit(self, widget):
+        subprocess.call(["xdg-open", os.path.expanduser("~/.config/kittykernel/blacklist")])
 
     # Collapses all entries in the treeview
     def on_collapse_all(self, widget):

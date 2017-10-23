@@ -1,0 +1,20 @@
+# This file allows to blacklist certain kernels or groups from the list in Kittykernel. Please be aware
+# that hidden kernels will not be touched _at all_. Also, the active kernel is never filtered.
+
+# "GROUP x.y" will hide the kernel group x.y
+# "KERNEL pattern" will hide every kernel which matches "pattern"; "pattern" should be regular expression (see Python's re.match(...) function for details)
+
+# Don't show these very old kernels
+GROUP 4.4
+
+# Remove all lowlatency kernels
+KERNEL .*-lowlatency$
+
+# Remove all Google Cloud Platform kernels
+KERNEL .*-gcp$
+
+# Remove all Azure kernels
+KERNEL .*-azure$
+
+
+

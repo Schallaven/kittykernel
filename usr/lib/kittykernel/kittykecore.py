@@ -33,6 +33,7 @@ import sys
 import platform
 import tempfile
 import gettext
+import re
 _ = gettext.gettext
 
 
@@ -338,6 +339,85 @@ def perform_kernels(fullnames, verb, xwindow_id = 0, headers = True, extras = Tr
         return -1
 
 
+# Opens and loads the filter list from ~/.config/kittykernel/blacklist; will create an empty file if the file does not exist!
+def load_blacklist():
+    # Blacklist path
+    blacklist_file = os.path.expanduser("~/.config/kittykernel/blacklist")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(os.path.dirname(blacklist_file), exist_ok=True)
+
+    # Check if user blacklist exists; if not copy from default blacklist
+    if not os.path.isfile(blacklist_file):
+        # Open default blacklist
+        with open("/usr/lib/kittykernel/blacklist_default", "r") as f:
+            default_blacklist = f.readlines()
+
+        # Open user blacklist a write contents to it
+        with open(blacklist_file, "w+") as f:
+            f.writelines(default_blacklist)
+
+    # Create empty list
+    backlist = []
+
+    # Open file; create if not exist; the seek(0) is necessary in the case that the file exists (append will move the file pointer to the end of the file!)
+    # Also, we use read.splitlines here to get rid of the "\n"; never understood why reading a text file with readlines should save the "\n"...
+    with open(blacklist_file, "a+") as f:
+        f.seek(0)
+        blacklist = f.read().splitlines()
+
+    # Remove all empty lines from list
+    blacklist = [entry for entry in blacklist if len(entry) > 0]
+
+    # Remove all comments from list
+    blacklist = [entry for entry in blacklist if not entry.startswith("#")]
+
+    # Split lines into KEYWORD and pattern; ignore all lines for which that is not possible
+    blacklist = [{'keyword': entry.split(' ', 1)[0].upper(), 'pattern': entry.split(' ', 1)[1]} for entry in blacklist if len(entry.split(' ', 1)) == 2]
+
+    # Return cleaned list
+    return blacklist
+
+# Applies a blacklist to a kernel list
+def apply_blacklist(kernels, blacklist):
+    global debugmode
+
+    # Prepare an empty list for the filtered kernels
+    kernels_filtered = []
+
+    # Each entry has to be checked
+    for kernel in kernels:
+        # Flag
+        eliminate = False
+
+        # Check each entry on blacklist
+        for entry in blacklist:
+            # Check GROUP
+            if entry["keyword"] == "GROUP" and entry["pattern"] == kernel["version_major"]:
+                eliminate = True
+                if debugmode:
+                    print("Elimnated group %s" % entry["pattern"])
+                break
+
+            # Check KERNEL
+            if entry["keyword"] == "KERNEL" and re.match(entry["pattern"], kernel["package"]):
+                eliminate = True
+                if debugmode:
+                    print("Elimnated kernel '%s' with pattern '%s'" % (kernel["package"], entry["pattern"]))
+                break
+
+        # The active kernel is _never_ filtered
+        if kernel["active"]:
+            eliminate = False
+
+        # If not eliminated then add to filtered list
+        if not eliminate:
+            kernels_filtered.append(kernel)
+
+    # Return filtered list
+    return kernels_filtered
+
+
 # Script file is run directly... then let's have some test outputs here
 if __name__ == '__main__':
     print("Script was called directly. Testing...")
@@ -360,4 +440,13 @@ if __name__ == '__main__':
 
     if len(kernels) > 0:
         print("Changelog of first entry %s:" % kernels[0]["fullname"], get_kernel_changelog(kernels[0]["fullname"]))
+
+    print("Load filters: ")
+    blacklist = load_blacklist()
+    print(blacklist)
+
+    print("Kernels with applied blacklist:")
+    kernels = apply_blacklist(kernels, blacklist)
+    for entry in kernels:
+        print(entry["package"])
 

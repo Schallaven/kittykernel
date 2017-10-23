@@ -33,6 +33,11 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
     <property name="can_focus">False</property>
     <property name="stock">gtk-refresh</property>
   </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-index</property>
+  </object>
   <object class="GtkApplicationWindow" id="kittykewindow">
     <property name="width_request">900</property>
     <property name="height_request">650</property>
@@ -67,6 +72,17 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_preferences" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem2">
+                        <property name="label" translatable="yes">Edit _blacklist</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="image">image3</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_blacklistedit" swapped="no"/>
                       </object>
                     </child>
                     <child>
