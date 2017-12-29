@@ -29,6 +29,7 @@
 import os
 import sys
 import gi
+import re
 import subprocess
 from enum import Enum;
 
@@ -176,8 +177,8 @@ class KittykeMainWindow():
                 # Check if there is already a parent with this major version
                 parent = None
                 for row in model:
-                    # If there is a parent, get its 'iter'
-                    if row.parent == None and row[1].startswith(kernel['version_major'] + " ("):
+                    # If there is a parent, get its 'iter'; remove the html tags from the string before comparison (the span tags mainly, see below)
+                    if row.parent == None and re.sub('<[^>]*>', '', row[1]).startswith(kernel['version_major'] + " ("):
                         parent = row.iter
                         break
 
