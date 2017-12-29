@@ -10,5 +10,5 @@ Description: Maow all your kernel needs!
  kittykernel is a handy tool that helps you to 
  organize, install, remove, and purge kernels in and from 
  your system with a GUI.
-Depends: python3 (>= 3.4), python3-setproctitle (>= 1.1.8), python3-apt (>=0.9), python3-gi (>=3.10), gir1.2-gtk-3.0 (>=3.10)
+Depends: python3 (>= 3.4), python3-setproctitle (>= 1.1.8), python3-apt (>=0.9), python3-gi (>=3.10), gir1.2-gtk-3.0 (>=3.10), gksu (>=2.0), synaptic (>=0.8)
 
