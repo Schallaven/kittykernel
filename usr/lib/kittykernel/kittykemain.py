@@ -335,7 +335,7 @@ class KittykeMainWindow():
         dlg.set_logo(GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/kittykernel.svg", 256, 256, True))
         dlg.set_website("http://www.github.com/schallaven/kittykernel")
         dlg.set_transient_for(self.window)        
-        dlg.set_version("1.1")
+        dlg.set_version("1.2")
         dlg.set_license_type(Gtk.License.GPL_3_0)
 
         # Contributors, who contributed in form of PRs
