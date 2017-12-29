@@ -15,6 +15,11 @@ KERNEL .*-gcp$
 
 # Remove all Azure kernels
 KERNEL .*-azure$
+KERNEL .*-azure-edge$
+
+# Remove all OEM kernels
+KERNEL .*-oem$
+
 
 
 
