@@ -1,8 +1,7 @@
 # kittykernel
 
 ## Description
-kittykernel is a cat-friendly, custom kernel manager for Linux Mint and other Debian derivates. It complements [catmintupdate](https://github.com/schallaven/catmintupdate) to
-administrate the core of the system.
+kittykernel is a cat-friendly, custom kernel manager for Linux Mint and other Debian derivates. 
 
 ## Features
 
@@ -29,14 +28,14 @@ At the moment, *kittykernel* is meant for testing environments _only_. Do not us
 
 ## Contributions
 
-Issues and Pull requests are welcome!
+Issues and Pull requests are always welcome!
 
-## Screenshots
+## Screenshot
 
-The following screenshot give a first impression and do not show all features.
+The following screenshots give a first impression and do not show all features:
 
-![bildschirmfoto zu 2017-08-04_00-40-16](https://user-images.githubusercontent.com/6428497/29012098-ecbc8a20-7b06-11e7-82bc-0b711ab1f046.png)
+Xubuntu 16.04
+![screenshot_2017-12-29_16-35-44](https://user-images.githubusercontent.com/6428497/34448034-ec08f578-ecb7-11e7-958c-80e8816cdd04.png)
 
-![bildschirmfoto zu 2017-08-06_22-06-42](https://user-images.githubusercontent.com/6428497/29012102-f41953a2-7b06-11e7-8d25-7a55592e5346.png)
-
-
+Linux Mint 18.3
+![bildschirmfoto zu 2017-12-29 16-49-09](https://user-images.githubusercontent.com/6428497/34448073-3d9f24ac-ecb8-11e7-9bbe-10570b2a378c.png)
