@@ -317,7 +317,7 @@ def perform_kernels(fullnames, verb, xwindow_id = 0, headers = True, extras = Tr
                 # Add to operations
                 operations.append( (verb, cache[pkg].name) )
 
-                header_name = cache[pkg].name.replace("-image-", "-image-extra-")
+                header_name = cache[pkg].name.replace("-image-", "-headers-")
                 if headers and header_name in cache:
                     operations.append( (verb, header_name) )
 
