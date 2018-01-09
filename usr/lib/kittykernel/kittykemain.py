@@ -67,6 +67,9 @@ class KittykeMainWindow():
             self.config['active_color'] = "#600000"
             self.config['installed_color'] = "#006000"
             self.config['downloaded_color'] = "#000060"
+            self.config['supported_color'] = "#006000"
+            self.config['expired_color'] = "#600000"
+            self.config['to_expire_color'] = "#606000"
 
             # Read blacklist
             self.blacklist = kittykecore.load_blacklist()
@@ -172,6 +175,9 @@ class KittykeMainWindow():
             # Apply blacklist to the kernel list
             self.kernels = kittykecore.apply_blacklist(self.kernels, self.blacklist)
 
+            # Get support times
+            self.support_times = kittykecore.get_kernel_support_times()
+
             # Add kernels to model
             for index, kernel in enumerate(self.kernels):   
                 # Check if there is already a parent with this major version
@@ -198,7 +204,18 @@ class KittykeMainWindow():
                     node_markup += ", <span foreground='%s'>%d</span>" % (self.config['installed_color'], num_installed)
                     node_markup += ", %d)" % (num_available)
 
-                    parent = model.append(None, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, None, "", "", "", "", "", -1])
+                    # Fourth, create a string for the 'info'-column for the number of supported month
+                    supporttext = ''
+                    for entry in self.support_times:
+                        if (kernel['origins'].find(entry['origin']+' ') != -1) and (kernel['version_major'] == entry['version']):
+                            if entry['month'] > 0:
+                                supporttext = "<span foreground='%s'>supported for another %.0d month(s)</span>" % (self.config['supported_color'], entry['month'])
+                            elif entry['month'] < 0:
+                                supporttext = "<span foreground='%s'>support expired since %.0d month(s)</span>" % (self.config['expired_color'], entry['month']*-1)
+                            else:
+                                supporttext = "<span foreground='%s'>support expires this month</span>" % (self.config['to_expire_color'])
+
+                    parent = model.append(None, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, None, "", supporttext, "", "", "", -1])
 
                 # Show a symbol if the kernel is installed (checkmark)
                 pixbufinstalled = [self.theme.load_icon("gtk-yes", 22, 0) if kernel["installed"] else None][0]

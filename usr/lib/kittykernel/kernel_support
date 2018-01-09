@@ -1,0 +1,27 @@
+# This file possesses the information for the EOL information of kittykernel
+#
+# Format:
+# <origin>,<version>,<month>,<year>
+# Ubuntu,4.15,8,2023
+#
+# <origin> is the string, which should be in the list of origins of the respective kernel, <version> is the major version of
+# the kernel (e.g. 4.15), and <month> and <year> are the month and year of the end of support date.
+
+# Ubuntu (Linux Mint, etc) kernels; information from https://wiki.ubuntu.com/Kernel/Support#Ubuntu_Kernel_Support
+
+# Ubuntu 14.04
+Ubuntu,3.13,4,2019
+Ubuntu,3.16,8,2016
+Ubuntu,3.19,8,2016
+Ubuntu,4.2,8,2016
+
+# Ubuntu 16.04
+Ubuntu,4.4,4,2021
+Ubuntu,4.8,8,2017
+Ubuntu,4.10,2,2018
+Ubuntu,4.13,8,2018
+
+# Ubuntu 18.04
+Ubuntu,4.15,4,2023
+
+

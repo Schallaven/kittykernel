@@ -34,6 +34,7 @@ import platform
 import tempfile
 import gettext
 import re
+import datetime
 _ = gettext.gettext
 
 
@@ -233,6 +234,35 @@ def get_kernel_changelog(fullname):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
         return ""
+
+# Reads the kernel support file provided with kittykernel to calculate the month a specific kernel is still supported
+# Maybe this can be loaded from the net in future or for some distros. Ubuntu only provides a more or less convenient 
+# Wiki-page (https://wiki.ubuntu.com/Kernel/Support#Ubuntu_Kernel_Support)
+def get_kernel_support_times():
+    # Current date as month
+    now = datetime.datetime.now()
+    now = now.year*12 + now.month
+
+    # Create empty list
+    supportlist = []
+
+    # Read kernel support file (we use read.splitlines here to get rid of the "\n"; never understood why reading a text file with readlines should save the "\n"...)
+    with open("/usr/lib/kittykernel/kernel_support", "r") as f:
+        supportlist = f.read().splitlines()
+
+    # Remove all empty lines from list
+    supportlist = [entry for entry in supportlist if len(entry) > 0]
+
+    # Remove all comments from list
+    supportlist = [entry for entry in supportlist if not entry.startswith("#")]
+
+    # Split lines 4 elements separated by ','; ignore all lines for which that is not possible
+    supportlist = [{'origin': entry.split(',', 3)[0], 
+                    'version': entry.split(',', 3)[1], 
+                    'month': int(entry.split(',', 3)[2]) + int(entry.split(',', 4)[3])*12 - now} for entry in supportlist if len(entry.split(',', 3)) == 4]
+
+    # Return list
+    return supportlist
 
 
 # Invokes synaptic with gksudo to do something with packages; operations is a list of tuples such as
@@ -449,4 +479,6 @@ if __name__ == '__main__':
     kernels = apply_blacklist(kernels, blacklist)
     for entry in kernels:
         print(entry["package"])
+
+    print("Get support list:", get_kernel_support_times())
 
