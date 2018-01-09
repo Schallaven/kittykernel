@@ -542,6 +542,22 @@ class KittykeMainWindow():
 
             # Is this kernel _not_ installed?
             if not self.kernels[index]['installed']:
+                # Check free space on /boot
+                freeonboot = kittykecore.sizeof_boot()[0]
+
+                # Warning, when /boot has less than 80 MiB free.
+                if freeonboot < 80000000:
+                    dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, "Low disk space on /boot")
+                    dialog.format_secondary_text(_("/boot is running out of free disk space (%s free). A kernel approximately requires 60-70 MiB. "
+                                                   "Please remove kernels you don't need anymore. It is suggested to keep the last working kernel. "
+                                                   "\n\nDo you want to continue installing the new kernel?") % (kittykecore.sizeof_fmt(freeonboot)))
+                    
+                    if dialog.run() == Gtk.ResponseType.NO:
+                        dialog.destroy()
+                        return
+
+                    dialog.destroy()
+
                 kittykecore.perform_kernels( [self.kernels[index]['package']], 'install', self.window.get_window().get_xid())
                 self.do_refresh(False)
 
