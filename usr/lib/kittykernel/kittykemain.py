@@ -188,6 +188,10 @@ class KittykeMainWindow():
             # Get kernels
             self.kernels = kittykecore.get_kernels()
 
+            # Download kernel of highest version
+            if len(self.kernels) > 0:
+                self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
+
             # Apply blacklist to the kernel list
             self.kernels = kittykecore.apply_blacklist(self.kernels, self.blacklist)
 
@@ -300,11 +304,7 @@ class KittykeMainWindow():
 
             # Add row to model
             iterindex = model_kernels.append([None, "", pixbufinstalled, kernel['version'], title, 
-                                     kittykecore.sizeof_fmt(kernel['size']), kittykecore.sizeof_fmt(kernel['installed_size']), kernel['origins'], int(index)])
-
-        # Download kernel of highest version
-        if len(self.kernels) > 0:
-            self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
+                                     kittykecore.sizeof_fmt(kernel['size']), kittykecore.sizeof_fmt(kernel['installed_size']), kernel['origins'], int(index)])        
 
         # Set the treeview model to show the new list
         self.kerneltree.set_model(model_kernels)
@@ -553,7 +553,7 @@ class KittykeMainWindow():
                         self.changelogview.scroll_to_iter(match_start, 0.0, True, 0.5, 0.5)
                         break
 
-    # Check for mouse buttons in tree view
+    # Check for mouse buttons in kernel list
     def on_tree_button_press(self, widget, event):
         # No kernels in list?
         if len(self.kernels) == 0:
@@ -588,10 +588,6 @@ class KittykeMainWindow():
             # Kernel menu   
             menu = self.builder.get_object("menu_kernel")
 
-            # Actually, the data value is -1, i.e. kernel list
-            if index == -1:
-                menu = self.builder.get_object("menu_kernel_group")
-
             # This is a special case, when the selected item is the current kernel
             if self.kernels[index]['active']:
                 menu = Gtk.Menu()
@@ -601,6 +597,20 @@ class KittykeMainWindow():
                 menu.append(menuItem)
 
             # Show the menu!
+            menu.show_all()
+            menu.popup(None, None, None, None, event.button, event.time)
+
+    # Check for mouse buttons in kernel group list
+    def on_treeview_groups_button_press_event(self, widget, event):
+        # No kernels in list?
+        if len(self.kernels) == 0:
+            return
+
+        # Right mouse button
+        if event.button == 3:     
+
+            # Show kernel group menu   
+            menu = self.builder.get_object("menu_kernel_group")
             menu.show_all()
             menu.popup(None, None, None, None, event.button, event.time)
 
@@ -713,21 +723,17 @@ class KittykeMainWindow():
             kittykecore.perform_kernels( kernels_to_purge, 'purge', self.window.get_window().get_xid())
             self.do_refresh(False)
 
-    # Removes all kernels from a specific group
+    # Removes all kernels from the currently selected group
     def on_remove_group(self, widget):
         # No kernels in list?
         if len(self.kernels) == 0:
             return
 
-        # Get selection
-        model, treeiter = self.kerneltree.get_selection().get_selected()
-
-        # Has parent?
-        if model.iter_parent(treeiter) != None:
-            treeiter = model.iter_parent(treeiter)
+        # Get model
+        model = self.kerneltree.get_model()
 
         # Start with first child
-        treeiter = model.iter_children(treeiter)
+        treeiter = model.iter_children()
 
         # Prepare list
         kernels_to_remove = []
@@ -746,7 +752,7 @@ class KittykeMainWindow():
         # No kernels selected? Display a messagebox
         if len(kernels_to_remove) == 0:
             dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, _("Nothing to remove"))
-            dialog.format_secondary_text( _("There are no kernels to remove from this tree."))
+            dialog.format_secondary_text( _("There are no kernels to remove from this group."))
             dialog.run()
             dialog.destroy()
 
@@ -756,21 +762,17 @@ class KittykeMainWindow():
             self.do_refresh(False)
 
 
-    # Purges all kernels from a specific group
+    # Purges all kernels from the currently selected group
     def on_purge_group(self, widget):
         # No kernels in list?
         if len(self.kernels) == 0:
             return
 
-        # Get selection
-        model, treeiter = self.kerneltree.get_selection().get_selected()
-
-        # Has parent?
-        if model.iter_parent(treeiter) != None:
-            treeiter = model.iter_parent(treeiter)
+        # Get model
+        model = self.kerneltree.get_model()
 
         # Start with first child
-        treeiter = model.iter_children(treeiter)
+        treeiter = model.iter_children()
 
         # Prepare list
         kernels_to_purge = []
@@ -789,7 +791,7 @@ class KittykeMainWindow():
         # No kernels selected? Display a messagebox
         if len(kernels_to_purge) == 0:
             dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, _("Nothing to purge"))
-            dialog.format_secondary_text( _("There are no kernels to purge from this tree."))
+            dialog.format_secondary_text( _("There are no kernels to purge from this group."))
             dialog.run()
             dialog.destroy()
 
