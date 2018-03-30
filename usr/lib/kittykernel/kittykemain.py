@@ -41,7 +41,13 @@ from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib
 import kittykecore
 
 
-# Identifiers for columns and their data
+# Identifiers for columns of the kernel group list
+class Group_columns(Enum):
+    KITTYKE_GROUP_ICON = 0
+    KITTYKE_GROUP_NAME = 1
+    KITTYKE_GROUP_VERSION = 2
+
+# Identifiers for columns and their data for the main list
 class Columns(Enum):
     KITTYKE_KERNEL_ICON = 0
     KITTYKE_KERNEL = 1
@@ -114,21 +120,26 @@ class KittykeMainWindow():
         self.do_refresh(False)
 
         # Show fancy messagebox with warning and explaination to the user
-        warningbox = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, _("KittyKernel updates the Linux operating system kernel, also called Linux."))
-        warningbox.format_secondary_text(_("Updating can help hardware support and performance. "
-              "If your system does not start after updating, hold shift while booting, select Mambo, and dance like you never have before."))
+        warningbox = self.builder.get_object("dialog_kittywarning")
+        warningbox.set_transient_for(self.window)
         warningbox.run()
+
+        # User did NOT set the checkbox, i.e. does not want to see the warning again
+        if not self.builder.get_object("check_showagain").get_active():
+            print("Don't show warning again")
+
         warningbox.destroy()
 
         return False
 
-    # This function setups the cellrenderers of the treeview
+    # This function setups the cellrenderers of both treeviews
     def setup_treeview(self):
-        # Save the handle to the treeview
+        # Save the handle to the treeviews
+        self.kernelgroup = self.builder.get_object("treeview_groups")
         self.kerneltree = self.builder.get_object("treeview_kernels")
 
-        # This is the iter of the current kernel row
-        self.currentkerneliter = None
+        # Set handler for selection change
+        self.kernelgroup.get_selection().connect("changed", self.on_kernel_major_changed)
 
         # The changelog; there is only one currently - the highest kernel will have the full changelog including everything else
         self.changelog = ""
@@ -140,7 +151,7 @@ class KittykeMainWindow():
         for col in columns:
             col.clear()
 
-        # First columns: Icon + Text 
+        # First columns: Icon + Text (used in treeview group)
         cr = Gtk.CellRendererPixbuf()
         columns[0].pack_start(cr, expand=False)
         columns[0].add_attribute(cr, 'pixbuf', Columns.KITTYKE_KERNEL_ICON.value)
@@ -149,7 +160,7 @@ class KittykeMainWindow():
         columns[0].pack_start(cr, expand=True)
         columns[0].add_attribute(cr, 'markup', Columns.KITTYKE_KERNEL.value)
 
-        # Second column is a pixbuf
+        # First column is a pixbuf
         cr = Gtk.CellRendererPixbuf()
         columns[1].pack_start(cr, expand=False)
         columns[1].add_attribute(cr, 'pixbuf', Columns.KITTYKE_INSTALLED.value)
@@ -160,14 +171,19 @@ class KittykeMainWindow():
             columns[index].pack_start(cr, False)
             columns[index].add_attribute(cr, 'markup', Columns.KITTYKE_KERNEL.value + index)
 
+    # Separator draw function for group list
+    def group_separator_func(self, model, iter, data):
+        return model[iter][2] == "separator"
+
     # Fill treeview (for example after a refresh)   
-    def fill_kernel_list(self):
+    def fill_group_list(self):
         try:
             # Unset current model, if set; this will empty the list
-            self.kerneltree.set_model(None)
+            self.kernelgroup.set_model(None)  
+            self.kernelgroup.set_row_separator_func(self.group_separator_func, None)          
 
-            # Setup a new model: Icon, Major version, Icon (installed), Info, Download Size, Installed Size, Origins, Data index
-            model = Gtk.TreeStore(GdkPixbuf.Pixbuf, str, GdkPixbuf.Pixbuf, str, str, str, str, str, int) 
+            # Setup a new model for the groups
+            model_groups = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str)
 
             # Get kernels
             self.kernels = kittykecore.get_kernels()
@@ -178,80 +194,70 @@ class KittykeMainWindow():
             # Get support times
             self.support_times = kittykecore.get_kernel_support_times()
 
-            # Add kernels to model
-            for index, kernel in enumerate(self.kernels):   
-                # Check if there is already a parent with this major version
-                parent = None
-                for row in model:
-                    # If there is a parent, get its 'iter'; remove the html tags from the string before comparison (the span tags mainly, see below)
-                    if row.parent == None and re.sub('<[^>]*>', '', row[1]).startswith(kernel['version_major'] + " ("):
-                        parent = row.iter
+            # Add kernel groups
+            for kernel in self.kernels:
+                # Check if there is already a group with the same name and continue if so
+                group_present = False
+
+                for row in model_groups:
+                    if row[Group_columns.KITTYKE_GROUP_VERSION.value] == kernel['version_major']:
+                        group_present = True
                         break
 
-                # Should there be no parent, than add a new one with this major version and a cog symbol; data index should be -1
-                if parent == None:
-                    # First, determine how many kernels of this version are downloaded, installed, and available
-                    num_available = [1 if x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
-                    num_downloaded = [1 if x['downloaded'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
-                    num_installed = [1 if x['installed'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)                    
+                if group_present == True:
+                    continue
 
-                    # Second, is the active kernel in the current list?
-                    has_active_kernel = ([1 if x['active'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1) > 0)                    
+                # No parent, then add a new one with this major version and a cog symbol
+                num_available = [1 if x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
+                num_downloaded = [1 if x['downloaded'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)
+                num_installed = [1 if x['installed'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1)                    
 
-                    # Third, create the string for this top-level node
-                    node_markup = ["<span foreground='%s'>%s</span>" % (self.config['active_color'], kernel['version_major']) if has_active_kernel else kernel['version_major']][0]
-                    node_markup += " (<span foreground='%s'>%d</span>" % (self.config['downloaded_color'], num_downloaded)
-                    node_markup += ", <span foreground='%s'>%d</span>" % (self.config['installed_color'], num_installed)
-                    node_markup += ", %d)" % (num_available)
+                # Second, is the active kernel in the current list?
+                has_active_kernel = ([1 if x['active'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1) > 0)                    
 
-                    # Fourth, create a string for the 'info'-column for the number of supported month
-                    supporttext = ''
-                    for entry in self.support_times:
-                        if (kernel['origins'].find(entry['origin']+' ') != -1) and (kernel['version_major'] == entry['version']):
-                            if entry['month'] > 0:
-                                supporttext = "<span foreground='%s'>supported for another %.0d month(s)</span>" % (self.config['supported_color'], entry['month'])
-                            elif entry['month'] < 0:
-                                supporttext = "<span foreground='%s'>support expired since %.0d month(s)</span>" % (self.config['expired_color'], entry['month']*-1)
-                            else:
-                                supporttext = "<span foreground='%s'>support expires this month</span>" % (self.config['to_expire_color'])
+                # Third, create the string for this top-level node
+                node_markup = ["<span foreground='%s'>%s</span>" % (self.config['active_color'], "<b>"+kernel['version_major']+"</b>") if has_active_kernel else kernel['version_major']][0]
+                node_markup += " (<span foreground='%s'>%d</span>" % (self.config['downloaded_color'], num_downloaded)
+                node_markup += ", <span foreground='%s'>%d</span>" % (self.config['installed_color'], num_installed)
+                node_markup += ", %d)" % (num_available)
 
-                    parent = model.append(None, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, None, "", supporttext, "", "", "", -1])
+                # Fourth, create a string for the 'info'-column for the number of supported month
+                supporttext = '---'
+                for entry in self.support_times:
+                    if (kernel['origins'].find(entry['origin']+' ') != -1) and (kernel['version_major'] == entry['version']):
+                        if entry['month'] > 0:
+                            supporttext = "<span foreground='%s'>supported for another %.0d month(s)</span>" % (self.config['supported_color'], entry['month'])
+                        elif entry['month'] < 0:
+                            supporttext = "<span foreground='%s'>support expired %.0d month(s) ago</span>" % (self.config['expired_color'], entry['month']*-1)
+                        else:
+                            supporttext = "<span foreground='%s'>support will expire this month</span>" % (self.config['to_expire_color'])  
 
-                # Show a symbol if the kernel is installed (checkmark)
-                pixbufinstalled = [self.theme.load_icon("gtk-yes", 22, 0) if kernel["installed"] else None][0]
+                #if len(supporttext) > 0:
+                node_markup += "\n" + supporttext
 
-                # Prepare extra info for title
-                titleadds = []
+                # We want to sort the listbox by descending version numbers, so find the first iter, which is smaller than the current version
+                iternextrow = None
+                for row in model_groups:
+                    if kittykecore.compare_versions(kernel['version_major'], row[2]) > 0:
+                        iternextrow = row.iter
+                        break
 
-                if kernel['active']:
-                    titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['active_color'], "active"))
+                # Add to model
+                model_groups.insert_before(iternextrow, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, kernel['version_major']])
 
-                if kernel['installed']:
-                    titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['installed_color'], "installed"))
+            # Add empty line and Ubuntu main line kernels
+            model_groups.append([None, "", "separator"])
+            model_groups.append([GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/ubuntu.svg", 22, 22, True), "Ubuntu mainline kernels archive\nhttp://kernel.ubuntu.com", "ubuntu mainline"])
 
-                if kernel['downloaded']:
-                    titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['downloaded_color'], "downloaded"))
+            # Set model to show
+            self.kernelgroup.set_model(model_groups)   
 
-                # Prepare title (package + extra info)
-                title = kernel['package'] + "\n" + ", ".join(titleadds)
-
-                # Add row to model
-                iterindex = model.append(parent, [None, "", pixbufinstalled, kernel['version'], title, 
-                                         kittykecore.sizeof_fmt(kernel['size']), kittykecore.sizeof_fmt(kernel['installed_size']), kernel['origins'], int(index)])
-
-                # Current kernel? Let's save the entry
-                if kernel['active']:
-                    self.currentkerneliter = iterindex        
-
-            # Download kernel of highest version
-            if len(self.kernels) > 0:
-                self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
-
-            # Set the treeview model to show the new list
-            self.kerneltree.set_model(model)
+            # Fill kernel list with first item in listbox
+            if len(model_groups) > 0:
+                self.kernelgroup.get_selection().select_iter(model_groups.get_iter_first())       
 
             # Delete model
-            del model
+            del model_groups            
 
         except Exception as e:
             print (e)
@@ -259,6 +265,81 @@ class KittykeMainWindow():
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
+
+    # Fill in the list of kernels based on the major version selected
+    def fill_kernel_list(self, selected_major):
+        # Unset current model, if set; this will empty the list
+        self.kerneltree.set_model(None)
+
+        # Setup a new model: Icon, Major version, Icon (installed), Info, Download Size, Installed Size, Origins, Data index
+        model_kernels = Gtk.ListStore(GdkPixbuf.Pixbuf, str, GdkPixbuf.Pixbuf, str, str, str, str, str, int) 
+
+        # Add kernels to model
+        for index, kernel in enumerate(self.kernels):
+            # Should be the major version given
+            if not kernel['version_major'] == selected_major:
+                continue
+
+            # Show a symbol if the kernel is installed (checkmark)
+            pixbufinstalled = [self.theme.load_icon("gtk-yes", 22, 0) if kernel["installed"] else None][0]
+
+            # Prepare extra info for title
+            titleadds = []
+
+            if kernel['active']:
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['active_color'], "active"))
+
+            if kernel['installed']:
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['installed_color'], "installed"))
+
+            if kernel['downloaded']:
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['downloaded_color'], "downloaded"))
+
+            # Prepare title (package + extra info)
+            title = kernel['package'] + "\n" + ", ".join(titleadds)
+
+            # Add row to model
+            iterindex = model_kernels.append([None, "", pixbufinstalled, kernel['version'], title, 
+                                     kittykecore.sizeof_fmt(kernel['size']), kittykecore.sizeof_fmt(kernel['installed_size']), kernel['origins'], int(index)])
+
+        # Download kernel of highest version
+        if len(self.kernels) > 0:
+            self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
+
+        # Set the treeview model to show the new list
+        self.kerneltree.set_model(model_kernels)
+
+        # Delete model
+        del model_kernels
+
+    # Called each time a user selects an entry in the major version list
+    def on_kernel_major_changed(self, selection):
+        # Get selection
+        model, treeiter = selection.get_selected()
+
+        # If there is an item behind this selection (no de-selection)
+        if treeiter is not None:
+            # Refill list of kernels
+            self.fill_kernel_list(model[treeiter][Group_columns.KITTYKE_GROUP_VERSION.value])  
+
+    # Get iter of specific major version: return None if not found
+    def get_iter_of_kernel_major(self, version):
+        # Get model
+        model = self.kernelgroup.get_model()
+
+        # Start with first child
+        treeiter = model.iter_children()
+
+        # Iterate over childs
+        while(treeiter != None):
+            if model[treeiter][Group_columns.KITTYKE_GROUP_VERSION.value] == str(version):
+                return treeiter
+
+            # Next element
+            treeiter = model.iter_next(treeiter)      
+
+        # Not found?
+        return None
 
     # Update the info bar with current kernel and size of /boot
     def update_infobar(self):
@@ -292,6 +373,10 @@ class KittykeMainWindow():
     def on_quit(self, widget):
         self.window.close()
 
+    # Opens /boot in the current file manager (by xdg-open)
+    def on_openboot_filemanager(self, widget):
+        subprocess.call(["xdg-open", "/boot"])
+
     # Will show the preferences
     def on_preferences(self, widget):
         dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.CLOSE, "Not implemented yet.")
@@ -318,7 +403,7 @@ class KittykeMainWindow():
         # Fill the kernel list
         self.set_progress( _("Filling kernel list..."), 0.40)   
         kittykecore.reopen_cache() 
-        self.fill_kernel_list()
+        self.fill_group_list()
 
         # Update the info bar with current kernel and size of /boot
         self.set_progress( _("Updating current kernel and /boot..."), 0.60)    
@@ -377,64 +462,56 @@ class KittykeMainWindow():
     def on_blacklistedit(self, widget):
         subprocess.call(["xdg-open", os.path.expanduser("~/.config/kittykernel/blacklist")])
 
-    # Collapses all entries in the treeview
-    def on_collapse_all(self, widget):
-        self.kerneltree.collapse_all()
+    # Get iter of active kernel in the current list; returns None if not in current list/not found
+    def get_iter_of_current_kernel(self):
+        # Get model
+        model = self.kerneltree.get_model()
 
-    # Collapses the current group
-    def on_collapse(self, widget):
-        # No kernels in list?
-        if len(self.kernels) == 0:
-            return
+        # Start with first child
+        treeiter = model.iter_children()
 
-        # Get selection
-        model, treeiter = self.kerneltree.get_selection().get_selected()
+        # Iterate over childs
+        while(treeiter != None):
+            index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-        # Has parent?
-        if self.kerneltree.get_model().iter_parent(treeiter) != None:
-            treeiter = self.kerneltree.get_model().iter_parent(treeiter)
+            # Is it in kernels?
+            if 0 <= index < len(self.kernels):
+                if self.kernels[index]['active']:
+                    return treeiter
 
-        # Expand parent (or the group itself)
-        self.kerneltree.collapse_row(self.kerneltree.get_model().get_path(treeiter))
+            # Next element
+            treeiter = model.iter_next(treeiter)      
 
-    # Expands all entries in the treeview
-    def on_expand_all(self, widget):
-        self.kerneltree.expand_all()
+        # Not found?
+        return None
 
-    # Expands the current group
-    def on_expand(self, widget):
-        # No kernels in list?
-        if len(self.kernels) == 0:
-            return
-
-        # Get selection
-        model, treeiter = self.kerneltree.get_selection().get_selected()
-
-        # Has parent?
-        if self.kerneltree.get_model().iter_parent(treeiter) != None:
-            treeiter = self.kerneltree.get_model().iter_parent(treeiter)
-
-        # Expand parent (or the group itself)
-        self.kerneltree.expand_row(self.kerneltree.get_model().get_path(treeiter), True)
-
-    # Scrolls to a specific entry in the treeview
+    # Scrolls to a specific entry in the kernel list
     def go_to_entry(self, iter):
-        # Make sure the parent of the entry is expanded
-        self.kerneltree.expand_row(self.kerneltree.get_model().get_path(self.kerneltree.get_model().iter_parent(iter)), True)
-
         # Scroll to entry
         self.kerneltree.scroll_to_cell(self.kerneltree.get_model().get_path(iter))
 
         # Select entry
         self.kerneltree.get_selection().select_iter(iter)
 
-
     # Finds and selects current kernel
     def on_go_home(self, widget):       
-        # Set?
-        if self.currentkerneliter:
-            self.go_to_entry(self.currentkerneliter)
-            
+        # First, select current kernels major version on the left list
+        groupiter = self.get_iter_of_kernel_major(kittykecore.get_current_kernel_major())
+
+        if groupiter is None:
+            return
+
+        # Select (fills list)
+        self.kernelgroup.get_selection().select_iter(groupiter)    
+
+        # Find kernel in filled list
+        kerneliter = self.get_iter_of_current_kernel()
+
+        if kerneliter is None:
+            return
+
+        # Select
+        self.go_to_entry(kerneliter)            
 
     # Another kernel selected?
     def on_kernelselect(self, selection):
@@ -504,6 +581,7 @@ class KittykeMainWindow():
         # Index of selected item
         index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
+
         # Right mouse button
         if event.button == 3:     
 
@@ -515,7 +593,7 @@ class KittykeMainWindow():
                 menu = self.builder.get_object("menu_kernel_group")
 
             # This is a special case, when the selected item is the current kernel
-            if model[treeiter][Columns.KITTYKE_DATA_INDEX.value] == model[self.currentkerneliter][Columns.KITTYKE_DATA_INDEX.value]:
+            if self.kernels[index]['active']:
                 menu = Gtk.Menu()
                 menuItem = Gtk.MenuItem.new_with_label(_("This is the current kernel. Look but do not touch!")) 
                 menuItem.set_sensitive(False)      
@@ -658,13 +736,8 @@ class KittykeMainWindow():
         while(treeiter != None):
             index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-            # This is a special case, when the item is the current kernel -> continue
-            if model[treeiter][Columns.KITTYKE_DATA_INDEX.value] == model[self.currentkerneliter][Columns.KITTYKE_DATA_INDEX.value]:
-                treeiter = model.iter_next(treeiter)
-                continue
-
             # Kernel should be installed; if yes -> add
-            if self.kernels[index]['installed']:
+            if self.kernels[index]['installed'] and not self.kernels[index]['active']:
                 kernels_to_remove.append(self.kernels[index]['package'])
 
             # Next element
@@ -706,13 +779,8 @@ class KittykeMainWindow():
         while(treeiter != None):
             index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-            # This is a special case, when the item is the current kernel -> continue
-            if model[treeiter][Columns.KITTYKE_DATA_INDEX.value] == model[self.currentkerneliter][Columns.KITTYKE_DATA_INDEX.value]:
-                treeiter = model.iter_next(treeiter)
-                continue
-
             # Kernel should be installed; if yes -> add
-            if self.kernels[index]['installed'] or self.kernels[index]['downloaded']:
+            if (self.kernels[index]['installed'] or self.kernels[index]['downloaded']) and not self.kernels[index]['active']:
                 kernels_to_purge.append(self.kernels[index]['package'])
 
             # Next element

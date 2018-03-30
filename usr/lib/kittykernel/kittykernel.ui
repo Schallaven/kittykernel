@@ -22,6 +22,129 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
 <interface>
   <requires lib="gtk+" version="3.4"/>
   <!-- interface-license-type gplv3 -->
+  <object class="GtkDialog" id="dialog_kittywarning">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Read this!</property>
+    <property name="resizable">False</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkGrid" id="grid1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="row_spacing">10</property>
+            <property name="row_homogeneous">True</property>
+            <child>
+              <object class="GtkImage" id="image4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">5</property>
+                <property name="ypad">5</property>
+                <property name="pixbuf">kittykernel.svg</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">KittyKernel updates the Linux operating system kernel</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="1.3"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="margin_right">10</property>
+                <property name="label" translatable="yes">Updating the kernel of the Linux operating system, which is also called Linux, can help hardware support and performance. If your system does not start after updating, hold shift while booting, select Mambo, and dance like you never have before.</property>
+                <property name="justify">fill</property>
+                <property name="wrap">True</property>
+                <property name="max_width_chars">80</property>
+                <property name="lines">3</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="check_showagain">
+                <property name="label" translatable="yes">Show this warning at start of KittyKernel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="1">button1</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -37,6 +160,11 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-index</property>
+  </object>
+  <object class="GtkImage" id="image6">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">folder</property>
   </object>
   <object class="GtkApplicationWindow" id="kittykewindow">
     <property name="width_request">900</property>
@@ -80,7 +208,6 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
-                        <property name="image">image3</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_blacklistedit" swapped="no"/>
                       </object>
@@ -138,30 +265,6 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <signal name="activate" handler="on_refresh_apt" swapped="no"/>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="separatormenuitem4">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem10">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Expand all</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_expand_all" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem11">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Collapse all</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_collapse_all" swapped="no"/>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>
@@ -176,30 +279,6 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                   <object class="GtkMenu" id="menu_kernel_group">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem12">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Collapse</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_collapse" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem13">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Expand</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_expand" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="separatormenuitem5">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                      </object>
-                    </child>
                     <child>
                       <object class="GtkMenuItem" id="menuitem14">
                         <property name="visible">True</property>
@@ -418,7 +497,19 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                 <property name="spacing">6</property>
                 <property name="layout_style">end</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkButton" id="openboot_filemanager">
+                    <property name="label" translatable="yes">Open in file manager</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">image6</property>
+                    <signal name="clicked" handler="on_openboot_filemanager" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
                 </child>
               </object>
               <packing>
@@ -463,68 +554,104 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="orientation">vertical</property>
+            <property name="position">400</property>
+            <property name="position_set">True</property>
             <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow1">
+              <object class="GtkPaned" id="middlepaned">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="shadow_type">in</property>
+                <property name="position">250</property>
+                <property name="position_set">True</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview_kernels">
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="enable_search">False</property>
-                    <signal name="button-press-event" handler="on_tree_button_press" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection">
-                        <signal name="changed" handler="on_kernelselect" swapped="no"/>
-                      </object>
-                    </child>
+                    <property name="shadow_type">in</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column1">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Group</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column2">
-                        <property name="title" translatable="yes">Installed?</property>
-                        <property name="widget">image1</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column3">
-                        <property name="resizable">True</property>
-                        <property name="min_width">110</property>
-                        <property name="title" translatable="yes">Version</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column4">
-                        <property name="resizable">True</property>
-                        <property name="sizing">autosize</property>
-                        <property name="min_width">200</property>
-                        <property name="title" translatable="yes">Info</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column5">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Download size</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column6">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Disk size</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="tree_kernels_column7">
-                        <property name="resizable">True</property>
-                        <property name="title" translatable="yes">Origin</property>
+                      <object class="GtkTreeView" id="treeview_groups">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="headers_visible">False</property>
+                        <property name="enable_search">False</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection2"/>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column1">
+                            <property name="title" translatable="yes">Group</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <object class="GtkTreeView" id="treeview_kernels">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="enable_search">False</property>
+                        <signal name="button-press-event" handler="on_tree_button_press" swapped="no"/>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection">
+                            <signal name="changed" handler="on_kernelselect" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column2">
+                            <property name="spacing">2</property>
+                            <property name="title" translatable="yes">Installed?</property>
+                            <property name="widget">image1</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column3">
+                            <property name="resizable">True</property>
+                            <property name="min_width">110</property>
+                            <property name="title" translatable="yes">Version</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column4">
+                            <property name="resizable">True</property>
+                            <property name="sizing">autosize</property>
+                            <property name="min_width">200</property>
+                            <property name="title" translatable="yes">Info</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column5">
+                            <property name="resizable">True</property>
+                            <property name="title" translatable="yes">Download size</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column6">
+                            <property name="resizable">True</property>
+                            <property name="title" translatable="yes">Disk size</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tree_kernels_column7">
+                            <property name="resizable">True</property>
+                            <property name="title" translatable="yes">Origin</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
                 </child>
               </object>
               <packing>

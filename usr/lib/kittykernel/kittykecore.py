@@ -87,6 +87,15 @@ def sizeof_boot():
             print (e)
         return (0, 0)
 
+# Compares version numbers; adaptation of Stackflow https://stackoverflow.com/questions/1714027/version-number-comparison-in-python
+def compare_versions(version1, version2):    
+    def compare(a, b):
+        return (a > b) - (a < b) 
+
+    def normalize(v):
+        return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+        
+    return compare(normalize(version1), normalize(version2))
 
 # Updates and reopens the cache; this version uses synaptic
 def refresh_cache(xwindow_id = 0):
@@ -109,6 +118,17 @@ def get_current_kernel():
     try:
         # call uname to get the current kernel; truncate a little bit
         return subprocess.check_output("uname -r", shell = True).decode("utf-8").strip()
+    except Exception as e:
+        if debugmode:
+            print (e)
+        return "unknown"
+
+# Returns the current kernel as major version in the format "4.10"; "unknown" is returned if an exception occurred
+def get_current_kernel_major():
+    global debugmode
+    try:
+        kernel_version = get_current_kernel()
+        return kernel_version.split('.')[0] + "." + kernel_version.split('.')[1]
     except Exception as e:
         if debugmode:
             print (e)
