@@ -1,11 +1,11 @@
 Package: kittykernel
-Version: 1.2
+Version: 1.3
 Maintainer: Sven Kochmann
 Architecture: all
 Section: admin
 Priority: optional
 Homepage: https://github.com/Schallaven/kittykernel
-Installed-size: 146
+Installed-size: 212
 Description: Maow all your kernel needs!
  kittykernel is a handy tool that helps you to 
  organize, install, remove, and purge kernels in and from 
