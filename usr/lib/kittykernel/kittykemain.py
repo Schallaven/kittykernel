@@ -376,10 +376,50 @@ class KittykeMainWindow():
 
     # Will show the preferences
     def on_preferences(self, widget):
-        dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.CLOSE, "Not implemented yet.")
-        dialog.format_secondary_text("Sorry, but the preferences dialog is not implemented, yet.")
-        dialog.run()
-        dialog.destroy()
+        # Set the options depending on config
+        # colors
+        for key in self.config['Colors']:
+            color_option = "color_" + key
+            if self.builder.get_object(color_option) is not None:
+                self.builder.get_object(color_option).set_color(Gdk.Color.parse(self.config['Colors'][key])[1])
+
+        # checks
+        for key in self.config['Checks']:
+            if self.config['Checks'][key] in ['ok', 'nokitty']:
+                check_option = "check_" + key
+                if self.builder.get_object(check_option) is not None:
+                    self.builder.get_object(check_option).set_active(True)
+
+        # Show fancy options dialog
+        prefdialog = self.builder.get_object("dialog_kittypreferences")
+        prefdialog.set_transient_for(self.window)
+        
+        # Saves the options if the users presses ok
+        if prefdialog.run() == Gtk.ResponseType.OK:
+            # colors
+            for key in self.config['Colors']:
+                color_option = "color_" + key
+                if self.builder.get_object(color_option) is not None:
+                    self.config['Colors'][key] = self.builder.get_object(color_option).get_color().to_string()
+
+            # checks
+            for key in self.config['Checks']:
+                check_option = "check_" + key
+                if self.builder.get_object(check_option) is not None:
+                    if self.builder.get_object(check_option).get_active():
+                        # 'nokitty' are for the 'negative' options ('Skip/Remove/...')
+                        if key in ['kittywarning']:
+                            self.config['Checks'][key] = 'nokitty'
+                        else:
+                            self.config['Checks'][key] = 'ok'
+                    else:
+                        self.config['Checks'][key] = ''
+
+            # Save config and refresh
+            kittykecore.save_config(self.config)
+
+        # It is important NOT to destroy this dialog if we want to show it again
+        prefdialog.hide()
 
     # Sets text and fraction of progressbar; performs a Gtk iteration to update
     def set_progress(self, text, fraction):
