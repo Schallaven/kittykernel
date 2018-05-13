@@ -122,7 +122,8 @@ class KittykeMainWindow():
 
         # User did NOT set the checkbox, i.e. does not want to see the warning again
         if not self.builder.get_object("check_showagain").get_active():
-            self.config['Checks']['kittywarning'] = ['nokitty']
+            self.config['Checks']['kittywarning'] = 'nokitty'
+            kittykecore.save_config(self.config)
 
         warningbox.destroy()
 

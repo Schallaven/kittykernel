@@ -125,6 +125,24 @@ def load_config():
 
     return config_dict
 
+# Saves the config file; adds the dictionary given to the default one
+def save_config(options):
+    # Config path
+    config_file = os.path.expanduser("~/.config/kittykernel/config")
+
+    # Create config object and load first the dictionary with defaults and then the options given as parameter
+    config = configparser.ConfigParser()
+
+    config_options = {}
+    config_options.update(config_default)
+    config_options.update(options)
+
+    config.read_dict(config_options)
+
+    with open(config_file, 'w') as configfile:
+        config.write(configfile)
+
+
 # Compares version numbers; adaptation of Stackflow https://stackoverflow.com/questions/1714027/version-number-comparison-in-python
 def compare_versions(version1, version2):    
     def compare(a, b):
