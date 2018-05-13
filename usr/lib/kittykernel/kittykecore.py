@@ -56,7 +56,9 @@ config_default = {
          'downloaded': '#000060',
          'supported': '#006000',
          'expired': '#600000',
-         'toexpire': '#606000'}
+         'toexpire': '#606000'},
+    'Checks':
+        {'kittywarning': ''}
     }
 
 

@@ -111,6 +111,10 @@ class KittykeMainWindow():
         # Do the actual refresh
         self.do_refresh(False)
 
+        # Only show warning until user read actually the warning text
+        if self.config['Checks']['kittywarning'] == 'nokitty':
+            return False
+
         # Show fancy messagebox with warning and explaination to the user
         warningbox = self.builder.get_object("dialog_kittywarning")
         warningbox.set_transient_for(self.window)
@@ -118,7 +122,7 @@ class KittykeMainWindow():
 
         # User did NOT set the checkbox, i.e. does not want to see the warning again
         if not self.builder.get_object("check_showagain").get_active():
-            print("Don't show warning again")
+            self.config['Checks']['kittywarning'] = ['nokitty']
 
         warningbox.destroy()
 
