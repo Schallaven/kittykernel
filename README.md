@@ -35,7 +35,7 @@ Issues and Pull requests are always welcome!
 The following screenshots give a first impression and do not show all features:
 
 Xubuntu 16.04
-![screenshot_2017-12-29_16-35-44](https://user-images.githubusercontent.com/6428497/34448034-ec08f578-ecb7-11e7-958c-80e8816cdd04.png)
+![screenshot_2018-03-30_16-19-57](https://user-images.githubusercontent.com/6428497/38152525-452a661c-3436-11e8-83c6-550593825394.png)
 
 Linux Mint 18.3
-![bildschirmfoto zu 2017-12-29 16-49-09](https://user-images.githubusercontent.com/6428497/34448073-3d9f24ac-ecb8-11e7-9bbe-10570b2a378c.png)
+![bildschirmfoto zu 2018-03-30 16-12-43](https://user-images.githubusercontent.com/6428497/38152391-98d61fb4-3435-11e8-9863-024f6fbdad1c.png)
