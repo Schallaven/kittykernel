@@ -35,6 +35,7 @@ import tempfile
 import gettext
 import re
 import datetime
+import configparser
 _ = gettext.gettext
 
 
@@ -46,6 +47,17 @@ cache = apt.Cache()
 
 # Architecture of platform; 64bit?
 platformis64bit = (platform.architecture()[0] == "64bit")
+
+# Default config
+config_default = {
+    'Colors': 
+        {'active': '#600000',
+         'installed': '#006000',
+         'downloaded': '#000060',
+         'supported': '#006000',
+         'expired': '#600000',
+         'toexpire': '#606000'}
+    }
 
 
 # Convert a number of bytes to a string with respective quantities. This
@@ -86,6 +98,30 @@ def sizeof_boot():
         if debugmode:
             print (e)
         return (0, 0)
+
+# Opens and loads the config file from ~/.config/kittykernel/config and returns its entries as dictionaries; will return a dictionary with defaults if no file exists
+def load_config():
+    global debugmode
+
+    # Config path
+    config_file = os.path.expanduser("~/.config/kittykernel/config")
+
+    # Create config object and load first the dictionary with defaults and then the config file
+    config = configparser.ConfigParser()
+
+    config.read_dict(config_default)
+    config.read(config_file)
+
+    # Create a complete dictionary of the items in config
+    config_dict = {}
+    for key in config:
+        if key is not 'DEFAULT':
+            config_dict.update({key: dict(config.items(key))})
+
+    if debugmode:
+        print(config_dict)
+
+    return config_dict
 
 # Compares version numbers; adaptation of Stackflow https://stackoverflow.com/questions/1714027/version-number-comparison-in-python
 def compare_versions(version1, version2):    
@@ -501,4 +537,7 @@ if __name__ == '__main__':
         print(entry["package"])
 
     print("Get support list:", get_kernel_support_times())
+
+    print("Config parser: ")
+    load_config()
 

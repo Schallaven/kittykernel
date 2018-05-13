@@ -66,16 +66,8 @@ class KittykeMainWindow():
     # Setup the UI and some parameters
     def __init__(self):
         try:
-            # Config should be read from a file or GTK config later
-            self.config = dict()
-
-            # This sets some colors for the treeview; should move later in some config file
-            self.config['active_color'] = "#600000"
-            self.config['installed_color'] = "#006000"
-            self.config['downloaded_color'] = "#000060"
-            self.config['supported_color'] = "#006000"
-            self.config['expired_color'] = "#600000"
-            self.config['to_expire_color'] = "#606000"
+            # Read config from file
+            self.config = kittykecore.load_config()    
 
             # Read blacklist
             self.blacklist = kittykecore.load_blacklist()
@@ -220,9 +212,9 @@ class KittykeMainWindow():
                 has_active_kernel = ([1 if x['active'] and x['version_major'] == kernel['version_major'] else 0 for x in self.kernels].count(1) > 0)                    
 
                 # Third, create the string for this top-level node
-                node_markup = ["<span foreground='%s'>%s</span>" % (self.config['active_color'], "<b>"+kernel['version_major']+"</b>") if has_active_kernel else kernel['version_major']][0]
-                node_markup += " (<span foreground='%s'>%d</span>" % (self.config['downloaded_color'], num_downloaded)
-                node_markup += ", <span foreground='%s'>%d</span>" % (self.config['installed_color'], num_installed)
+                node_markup = ["<span foreground='%s'>%s</span>" % (self.config['Colors']['active'], "<b>"+kernel['version_major']+"</b>") if has_active_kernel else kernel['version_major']][0]
+                node_markup += " (<span foreground='%s'>%d</span>" % (self.config['Colors']['downloaded'], num_downloaded)
+                node_markup += ", <span foreground='%s'>%d</span>" % (self.config['Colors']['installed'], num_installed)
                 node_markup += ", %d)" % (num_available)
 
                 # Fourth, create a string for the 'info'-column for the number of supported month
@@ -230,11 +222,11 @@ class KittykeMainWindow():
                 for entry in self.support_times:
                     if (kernel['origins'].find(entry['origin']+' ') != -1) and (kernel['version_major'] == entry['version']):
                         if entry['month'] > 0:
-                            supporttext = "<span foreground='%s'>supported for another %.0d month(s)</span>" % (self.config['supported_color'], entry['month'])
+                            supporttext = "<span foreground='%s'>supported for another %.0d month(s)</span>" % (self.config['Colors']['supported'], entry['month'])
                         elif entry['month'] < 0:
-                            supporttext = "<span foreground='%s'>support expired %.0d month(s) ago</span>" % (self.config['expired_color'], entry['month']*-1)
+                            supporttext = "<span foreground='%s'>support expired %.0d month(s) ago</span>" % (self.config['Colors']['expired'], entry['month']*-1)
                         else:
-                            supporttext = "<span foreground='%s'>support will expire this month</span>" % (self.config['to_expire_color'])  
+                            supporttext = "<span foreground='%s'>support will expire this month</span>" % (self.config['Colors']['toexpire'])  
 
                 #if len(supporttext) > 0:
                 node_markup += "\n" + supporttext
@@ -291,13 +283,13 @@ class KittykeMainWindow():
             titleadds = []
 
             if kernel['active']:
-                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['active_color'], "active"))
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['active'], "active"))
 
             if kernel['installed']:
-                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['installed_color'], "installed"))
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['installed'], "installed"))
 
             if kernel['downloaded']:
-                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['downloaded_color'], "downloaded"))
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['downloaded'], "downloaded"))
 
             # Prepare title (package + extra info)
             title = kernel['package'] + "\n" + ", ".join(titleadds)
