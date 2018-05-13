@@ -420,16 +420,20 @@ def perform_kernels(fullnames, verb, xwindow_id = 0, headers = True, extras = Tr
 
             # Is package in cache? Then, ask synaptic to install it
             if pkg in cache:
+                # Create list of packages to install including headers, modules, extras
+                pkg_list = [cache[pkg].name, cache[pkg].name.replace("-image-", "-modules-")]
+
+                if headers:
+                    pkg_list.append(cache[pkg].name.replace("-image-", "-headers-"))
+
+                if extras:
+                    pkg_list.append(cache[pkg].name.replace("-image-", "-image-extra-"))
+                    pkg_list.append(cache[pkg].name.replace("-image-", "-modules-extra-"))
+
                 # Add to operations
-                operations.append( (verb, cache[pkg].name) )
-
-                header_name = cache[pkg].name.replace("-image-", "-headers-")
-                if headers and header_name in cache:
-                    operations.append( (verb, header_name) )
-
-                extras_name = cache[pkg].name.replace("-image-", "-image-extra-")
-                if extras and extras_name in cache:
-                    operations.append( (verb, extras_name) )
+                for entry in pkg_list:
+                    if entry in cache:
+                        operations.append( (verb, entry) )
 
         # Perform actions
         return pkg_perform_operations(operations, xwindow_id)         
