@@ -38,6 +38,7 @@ gi.require_version('GdkX11', '3.0')
 
 from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib
 
+
 import kittykecore
 
 
@@ -93,7 +94,11 @@ class KittykeMainWindow():
             # Main window handle
             self.window = self.builder.get_object("kittykewindow")
             self.window.set_icon_from_file("/usr/lib/kittykernel/kittykernel.svg")
-            self.window.show_all()                  
+            self.window.show_all()             
+
+            # Init
+            self.kernels = []
+            self.kernels_ubuntu = []     
 
             # Hesitate a little bit with updating, so that the user sees the window before the actual first update happens
             GLib.timeout_add(1000, self.init_refresh)            
@@ -246,9 +251,10 @@ class KittykeMainWindow():
                 # Add to model
                 model_groups.insert_before(iternextrow, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, kernel['version_major']])
 
-            # Add empty line and Ubuntu main line kernels
+            # Add empty line and Ubuntu main line kernels            
             model_groups.append([None, "", "separator"])
-            model_groups.append([GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/ubuntu.svg", 22, 22, True), "Ubuntu mainline kernels archive\nhttp://kernel.ubuntu.com", "ubuntu mainline"])
+            model_groups.append([GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/ubuntu.svg", 22, 22, True), 
+                    "Ubuntu mainline kernels archive\nhttp://kernel.ubuntu.com", "ubuntu mainline"])
 
             # Set model to show
             self.kernelgroup.set_model(model_groups)   
@@ -267,8 +273,8 @@ class KittykeMainWindow():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
 
-    # Fill in the list of kernels based on the major version selected
-    def fill_kernel_list(self, selected_major):
+    # Fill in the list of regular kernels (repo)
+    def fill_kernel_list_repo(self, selected_major):
         # Unset current model, if set; this will empty the list
         self.kerneltree.set_model(None)
 
@@ -308,6 +314,61 @@ class KittykeMainWindow():
 
         # Delete model
         del model_kernels
+
+    # Fill in the list of Ubuntu kernels
+    def fill_kernel_list_ubuntu(self):
+        # Load a list of Ubuntu kernels if needed
+        if len(self.kernels_ubuntu) == 0:
+            self.set_progress( _("Filling Ubuntu kernel list..."), 0.40)   
+   
+            self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
+
+            self.set_progress( _("Applying filters..."), 0.90)   
+            self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
+
+            for index, kernel in enumerate(self.kernels_ubuntu):
+                self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
+
+            self.set_progress( _("Ready."), 1.00)  
+
+        # Unset current model, if set; this will empty the list
+        self.kerneltree.set_model(None)
+
+        # Setup a new model: Icon, Major version, Icon (installed), Info, Download Size, Installed Size, Origins, Data index
+        model_kernels = Gtk.ListStore(GdkPixbuf.Pixbuf, str, GdkPixbuf.Pixbuf, str, str, str, str, str, int) 
+
+        # Add kernels to model
+        for index, kernel in enumerate(self.kernels_ubuntu):  
+            # Prepare extra info for title
+            titleadds = []
+
+            # if kernel['active']:
+            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['active'], "active"))
+
+            # if kernel['installed']:
+            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['installed'], "installed"))
+
+            # if kernel['downloaded']:
+            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['downloaded'], "downloaded"))
+
+            # Prepare title (package + extra info)
+            title = kernel['package'] + "\n" + ", ".join(titleadds)
+
+            # Add row to model
+            iterindex = model_kernels.append([None, "", None, kernel['version'], title, kittykecore.sizeof_fmt(kernel['size']), "", kernel['url'], int(index)])        
+
+        # Set the treeview model to show the new list
+        self.kerneltree.set_model(model_kernels)
+
+        # Delete model
+        del model_kernels
+
+    # Fill in the list of kernels based on the major version selected
+    def fill_kernel_list(self, selected_major):
+        if selected_major == 'ubuntu mainline':
+            self.fill_kernel_list_ubuntu()
+        else:
+            self.fill_kernel_list_repo(selected_major)        
 
     # Called each time a user selects an entry in the major version list
     def on_kernel_major_changed(self, selection):
@@ -474,14 +535,14 @@ class KittykeMainWindow():
         dlg.set_logo(GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/kittykernel.svg", 256, 256, True))
         dlg.set_website("http://www.github.com/schallaven/kittykernel")
         dlg.set_transient_for(self.window)        
-        dlg.set_version("1.3")
+        dlg.set_version("1.4")
         dlg.set_license_type(Gtk.License.GPL_3_0)
 
         # Contributors, who contributed in form of PRs
         dlg.add_credit_section("Github contributors", ["Fred-Barclay"])
 
         # Contributors, who contributed from #linux on Spotchat
-        dlg.add_credit_section("#linux (Spotchat) contributors", ["Mr W.", "Mr T."])
+        dlg.add_credit_section("#linux (Spotchat) contributors", ["Mr W.", "Mr T.", "jeremy31"])
 
         # Run and destroy dialog afterwards        
         dlg.run()
@@ -501,7 +562,10 @@ class KittykeMainWindow():
 
     # Get iter of active kernel in the current list; returns None if not in current list/not found
     def get_iter_of_current_kernel(self):
-        # Get model
+        if kittykecore.get_current_kernel_major() == 'ubuntu mainline':
+            return
+
+        # Get models
         model = self.kerneltree.get_model()
 
         # Start with first child
@@ -511,7 +575,7 @@ class KittykeMainWindow():
         while(treeiter != None):
             index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-            # Is it in kernels?
+            # Is it in kernels?            
             if 0 <= index < len(self.kernels):
                 if self.kernels[index]['active']:
                     return treeiter

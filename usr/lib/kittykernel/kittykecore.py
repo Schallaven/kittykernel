@@ -36,6 +36,7 @@ import gettext
 import re
 import datetime
 import configparser
+import urllib
 _ = gettext.gettext
 
 
@@ -488,7 +489,7 @@ def load_blacklist():
     # Return cleaned list
     return blacklist
 
-# Applies a blacklist to a kernel list
+# Applies a blacklist to a kernel list; each entry in 'kernels' needs to have 'version_major', 'package', and 'active' properties
 def apply_blacklist(kernels, blacklist):
     global debugmode
 
@@ -527,6 +528,204 @@ def apply_blacklist(kernels, blacklist):
     # Return filtered list
     return kernels_filtered
 
+# Download information about ONE specific Ubuntu kernel; suburl is not the complete url but the subdirectory (with final '/');
+# returns an array of one or more kernel packages (for e.g. the generic and lowlatency version of a kernel)
+def get_ubuntu_kernel_info(suburl):
+    global platformis64bit
+
+    arch = ['amd64' if platformis64bit else 'i386'][0]
+
+    # Create an empty dictionary object; create version from url
+    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'files': []}
+
+    try:
+        kernel['version_major'] = re.findall(u"v([0-9]+\.[0-9]+)", suburl)[0]
+        kernel['version'] = re.findall(u"v([0-9]+\.[0-9]+.*)/", suburl)[0]
+        kernel['url'] = "http://kernel.ubuntu.com/~kernel-ppa/mainline/" + suburl
+
+    except:
+        return []
+
+    # Download info about all related files; sort by name (C=N), descending (O=D), fancy HTML (F=2) for getting disk size and co
+    kernel_info_html = ""
+    try:
+        with urllib.request.urlopen(kernel['url'] + "?C=N&O=D&F=2") as urlfile:
+            kernel_info_html = urlfile.read().decode("utf-8")
+    except:
+        return []
+
+    # Remove all newlines or carriage returns (makes it easier for the regular expression to find anything; UNICODE and MULTILINE together sometimes don't work out. NEVER. DON'T EVEN TRY. Why are you still reading this comment?)
+    kernel_info_html = kernel_info_html.replace('\n', '').replace('\r', '')
+
+    # File list
+    files = []
+
+    # All the files are in the table; the columns of each line are: symbol, file, date, size, description (usually empty)
+    try:
+        pattern = re.compile(u"<table>(.+?)<\/table>", re.UNICODE)
+        kernel_info_html = re.search(pattern, kernel_info_html).group(1)
+
+        pattern = re.compile(u"<tr>(.+?)</tr>", re.UNICODE)
+        kernel_info_html = re.findall(pattern, kernel_info_html)
+
+        for line in kernel_info_html:
+            # Split into columns
+            pattern = re.compile(u"<td(?:.*?)>(.+?)</td>", re.UNICODE)
+            columns = re.findall(pattern, line)
+
+            if len(columns) == 0:
+                continue
+
+            # First line does not matter (icon)
+            columns[0] = ''
+
+            # Extract file name from Column 2 (ID = 1)
+            pattern = re.compile(u"<a href=\"(.+?)\">", re.UNICODE)
+            columns[1] = re.findall(pattern, columns[1])[0]
+
+            # Trim each column of whitespaces and '&nbsp;'
+            for index, _ in enumerate(columns):
+                columns[index] = columns[index].strip().replace('&nbsp;', '')
+
+            # Changes file? Download and save
+            if columns[1] == 'CHANGES':
+                with urllib.request.urlopen(kernel['url'] + "CHANGES") as changesfile:
+                    kernel['changes'] = changesfile.read().decode("utf-8")
+
+            # Only process necessary files for the kernel
+            if not columns[1].startswith('linux-'):
+                continue            
+
+            # Check platform
+            if re.match(u"linux-(.+?)_" + arch + ".deb", columns[1]) or re.match(u"linux-(.+?)_all.deb", columns[1]):     
+                # Find the 'package' property
+                if columns[1].startswith('linux-image-'):
+                    a = columns[1].find('_')
+                    if a is not -1:
+                        kernel['package'] = columns[1][:a]
+                        b = kernel['package'].rfind('-')
+                        if b is not -1:
+                            kernel['package'] = kernel['package'][:b]
+                        
+                # Process size
+                size_data = re.findall(u"^([0-9]+\.?[0-9]*)([KM])", columns[3])[0]
+
+                size = int(round(float(size_data[0]), 0))
+
+                if size_data[1] in ['K', 'M']:
+                    size *= int([1024 if size_data[1] == 'K' else 1024*1024][0])
+
+                # Add to files as a tuple
+                files.append((columns[1], columns[2], size))         
+
+    except:
+        return []
+
+    # Create empty list of kernels to return
+    kernels = []
+    groups = []
+
+    try:
+        # Create a list of all groups of kernels, e.g. generic, lowlatency, etc
+        for file in files:
+            # Extract group
+            group = ''
+            a = file[0].find('_')
+            if a is not -1:
+                group = file[0][:a]
+                b = group.rfind('-')
+                if b is not -1:
+                    group = group[b+1:]
+
+            # Ignore if the group is only digits (happens with the 'all' package)
+            if group.isdigit():
+                continue
+
+            # Add a new group if not already there
+            if not group in groups:
+                groups.append(group)
+
+        for group in groups:
+            kernels.append(kernel.copy())
+
+            kernels[-1]['package'] = kernels[-1]['package'] + '-' + group
+            kernels[-1]['files'] = [] # This is important, otherwise all kernel objects will share the same file list (Python does not copy by default)
+            kernels[-1]['size'] = 0
+
+            for file in files:
+                # Get kernel root from filename
+                rootname = file[0]
+                a = rootname.find('_')
+                if a is not -1:
+                    rootname = rootname[:a]
+
+                # -all files for all \o/
+                if re.match(u"^linux-(.*)-" + group + "$", rootname) or re.match(u"linux-(.+?)_all.deb", file[0]):
+                    kernels[-1]['files'].append(file)
+                    kernels[-1]['size'] += file[2]
+
+    except:
+        return []        
+
+    return kernels
+
+
+# Downloads a list of Ubuntu kernels; returns an empty list if something goes wrong
+def get_ubuntu_kernels(ignore_drm = True, ignore_before4 = True):
+    # Prepare list
+    kernel_list = []    
+
+    # Download list of kernels; sort by name (C=N), descending (O=D), no fancy HTML (F=0)
+    kernel_list_html = ""
+    try:
+        with urllib.request.urlopen("http://kernel.ubuntu.com/~kernel-ppa/mainline/?C=N&O=D&F=0") as urlfile:
+            kernel_list_html = urlfile.read().decode("utf-8")
+    except:
+        return []
+
+    # Remove all newlines or carriage returns (makes it easier for the regular expression to find anything; UNICODE and MULTILINE together sometimes don't work out)
+    kernel_list_html = kernel_list_html.replace('\n', '').replace('\r', '')
+
+    # All the kernels are in <ul><li><a href="...">...</a></li><li>...</li>...</ul>, so just extract them
+    try:
+        pattern = re.compile(u"<ul>(.+?)</ul>", re.UNICODE)
+        kernel_list_html = re.search(pattern, kernel_list_html).group(1)
+
+        pattern = re.compile(u"<a href=\"(.+?)\">", re.UNICODE)
+        kernel_list_html = re.findall(pattern, kernel_list_html)
+
+        previous_version = "1.0"
+        for entry in kernel_list_html: 
+            # Ignore 'X' and all files
+            if entry is 'X' or not entry.endswith('/'):
+                continue
+
+            # as well as everything which does not start with either 'v' or 'drm' (if not ignore)
+            if not entry.startswith('v') and not (entry.startswith('drm-') and not ignore_drm):
+                continue
+
+            # Ignore versions below 4.x (if set)
+            if ignore_before4 and entry.startswith('v') and int(strip_kernel_version(entry[1:-1], 1)) < 4:         
+                continue
+
+            # For now, we only evaluate the latest version of a line            
+            version = [strip_kernel_version(entry[1:-1], 2) if entry.startswith('v') else entry][0]
+            if compare_versions(version, previous_version) == 0:
+                continue
+
+            previous_version = version
+
+            kernelpkgs = get_ubuntu_kernel_info(entry)
+
+            for pkg in kernelpkgs:
+                kernel_list.append(pkg)
+
+    except:
+        return []
+
+    # Return the list
+    return kernel_list
+
 
 # Script file is run directly... then let's have some test outputs here
 if __name__ == '__main__':
@@ -564,4 +763,7 @@ if __name__ == '__main__':
 
     print("Config parser: ")
     load_config()
+
+    print("Ubuntu kernels: ")
+    print(get_ubuntu_kernels())
 
