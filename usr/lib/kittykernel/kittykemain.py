@@ -342,14 +342,11 @@ class KittykeMainWindow():
             # Prepare extra info for title
             titleadds = []
 
-            # if kernel['active']:
-            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['active'], "active"))
+            if kernel['downloaded_files'] == len(kernel['files']):
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['installed'], "downloaded"))
 
-            # if kernel['installed']:
-            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['installed'], "installed"))
-
-            # if kernel['downloaded']:
-            #     titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['downloaded'], "downloaded"))
+            if kernel['downloaded_files'] > 0 and kernel['downloaded_files'] < len(kernel['files']):
+                titleadds.append("<i><small><span foreground='%s'>%s</span></small></i>" % (self.config['Colors']['downloaded'], "partly downloaded"))
 
             # Prepare title (package + extra info)
             title = kernel['package'] + "\n" + ", ".join(titleadds)
@@ -362,6 +359,17 @@ class KittykeMainWindow():
 
         # Delete model
         del model_kernels
+
+    # Get selected major version
+    def get_kernel_major_selected(self):
+         # Get model
+        model, groupiter = self.kernelgroup.get_selection().get_selected()
+
+        if groupiter is None:
+            return ""
+
+        return model[groupiter][Group_columns.KITTYKE_GROUP_VERSION.value]
+
 
     # Fill in the list of kernels based on the major version selected
     def fill_kernel_list(self, selected_major):
@@ -562,8 +570,8 @@ class KittykeMainWindow():
 
     # Get iter of active kernel in the current list; returns None if not in current list/not found
     def get_iter_of_current_kernel(self):
-        if kittykecore.get_current_kernel_major() == 'ubuntu mainline':
-            return
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
+            return None
 
         # Get models
         model = self.kerneltree.get_model()
@@ -657,10 +665,10 @@ class KittykeMainWindow():
     # Check for mouse buttons in kernel list
     def on_tree_button_press(self, widget, event):
         # No kernels in list?
-        if len(self.kernels) == 0:
+        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
             return
 
-        # Get mmodel
+        # Get model
         model = self.kerneltree.get_model()
 
         # Get path at cursor position
@@ -682,11 +690,10 @@ class KittykeMainWindow():
         # Index of selected item
         index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-
         # Right mouse button
         if event.button == 3:     
 
-            # Kernel menu   
+            # Standard kernel menu   
             menu = self.builder.get_object("menu_kernel")
 
             # This is a special case, when the selected item is the current kernel
@@ -697,6 +704,10 @@ class KittykeMainWindow():
                 menu.attach_to_widget (widget, None)         
                 menu.append(menuItem)
 
+            # Ubuntu kernel?
+            if self.get_kernel_major_selected() == 'ubuntu mainline':
+                menu = self.builder.get_object("menu_kernel_ubuntu")            
+
             # Show the menu!
             menu.show_all()
             menu.popup(None, None, None, None, event.button, event.time)
@@ -704,11 +715,11 @@ class KittykeMainWindow():
     # Check for mouse buttons in kernel group list
     def on_treeview_groups_button_press_event(self, widget, event):
         # No kernels in list?
-        if len(self.kernels) == 0:
+        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
             return
 
         # Right mouse button
-        if event.button == 3:     
+        if event.button == 3 and not self.get_kernel_major_selected() == 'ubuntu mainline':    
 
             # Show kernel group menu   
             menu = self.builder.get_object("menu_kernel_group")
@@ -719,7 +730,7 @@ class KittykeMainWindow():
     # Installs a kernel
     def on_kernel_install(self, widget):
         # No kernels in list?
-        if len(self.kernels) == 0:
+        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
             return
 
         # Get selection
@@ -729,31 +740,41 @@ class KittykeMainWindow():
         if treeiter != None:
             index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
-            # Is this kernel _not_ installed?
-            if not self.kernels[index]['installed']:
-                # Check free space on /boot
-                freeonboot = kittykecore.sizeof_boot()[0]
+            # Ubuntu kernel
+            if self.get_kernel_major_selected() == 'ubuntu mainline':
+                # Download kernel and install it then
+                kittykecore.debugmode = True
+                kittykecore.download_ubuntu_kernel(self.kernels_ubuntu[index])
 
-                # Warning, when /boot has less than 80 MiB free.
-                if freeonboot < 80000000:
-                    dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, "Low disk space on /boot")
-                    dialog.format_secondary_text(_("/boot is running out of free disk space (%s free). A kernel approximately requires 60-70 MiB. "
-                                                   "Please remove kernels you don't need anymore. It is suggested to keep the last working kernel. "
-                                                   "\n\nDo you want to continue installing the new kernel?") % (kittykecore.sizeof_fmt(freeonboot)))
-                    
-                    if dialog.run() == Gtk.ResponseType.NO:
+
+            # Repo kernel
+            else:
+                # Is this kernel _not_ installed?
+                if not self.kernels[index]['installed']:
+                    # Check free space on /boot
+                    freeonboot = kittykecore.sizeof_boot()[0]
+
+                    # Warning, when /boot has less than 80 MiB free.
+                    if freeonboot < 80000000:
+                        dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, "Low disk space on /boot")
+                        dialog.format_secondary_text(_("/boot is running out of free disk space (%s free). A kernel approximately requires 60-70 MiB. "
+                                                       "Please remove kernels you don't need anymore. It is suggested to keep the last working kernel. "
+                                                       "\n\nDo you want to continue installing the new kernel?") % (kittykecore.sizeof_fmt(freeonboot)))
+                        
+                        if dialog.run() == Gtk.ResponseType.NO:
+                            dialog.destroy()
+                            return
+
                         dialog.destroy()
-                        return
 
-                    dialog.destroy()
+                    kittykecore.perform_kernels( [self.kernels[index]['package']], 'install', self.window.get_window().get_xid())
+                    self.do_refresh(False)
 
-                kittykecore.perform_kernels( [self.kernels[index]['package']], 'install', self.window.get_window().get_xid())
-                self.do_refresh(False)
 
     # Removes a kernel
     def on_kernel_remove(self, widget):
         # No kernels in list?
-        if len(self.kernels) == 0:
+        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
             return
 
         # Get selection
@@ -776,6 +797,10 @@ class KittykeMainWindow():
     def on_kernel_purge(self, widget):
         # No kernels in list?
         if len(self.kernels) == 0:
+            return
+
+        # No function for Ubuntu kernels
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
             return
 
         # Get selection
@@ -830,6 +855,10 @@ class KittykeMainWindow():
         if len(self.kernels) == 0:
             return
 
+        # No function for Ubuntu kernels
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
+            return
+
         # Get model
         model = self.kerneltree.get_model()
 
@@ -867,6 +896,10 @@ class KittykeMainWindow():
     def on_purge_group(self, widget):
         # No kernels in list?
         if len(self.kernels) == 0:
+            return
+
+        # No function for Ubuntu kernels
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
             return
 
         # Get model

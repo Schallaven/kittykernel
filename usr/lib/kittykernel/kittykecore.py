@@ -528,6 +528,73 @@ def apply_blacklist(kernels, blacklist):
     # Return filtered list
     return kernels_filtered
 
+# Returns the number of files, which are downloaded from this kernel
+def ubuntu_kernel_downloaded_files(kernel):
+    global debugmode
+
+    # Download path
+    downloadto = os.path.expanduser("~/.config/kittykernel")
+
+    no_files = 0
+  
+    # Download each file; check for existance first; file is tuple (name, date, size)
+    for file in kernel['files']:
+        outputfile = downloadto + "/" + file[0]
+
+        if os.path.isfile(outputfile):
+            if debugmode:
+                print("File exists.")
+
+            no_files += 1       
+
+    # Return number of files
+    return no_files
+
+# Download a Ubuntu kernel; redownload will remove existing files and download them again
+# Returns False if there was an exception
+def download_ubuntu_kernel(kernel, redownload = False):
+    global debugmode
+
+    # Download path
+    downloadto = os.path.expanduser("~/.config/kittykernel")
+
+    try:
+        # Download each file; check for existance first; file is tuple (name, date, size)
+        for file in kernel['files']:
+            inputurl = kernel['url'] + file[0]
+            outputfile = downloadto + "/" + file[0]
+
+            if debugmode:
+                print("Download %s to %s" % (file[0], outputfile))
+
+            if os.path.isfile(outputfile) and redownload:
+                os.remove(outputfile)
+
+                if debugmode:
+                    print("File exists. Removing.")
+
+            if os.path.isfile(outputfile):
+                if debugmode:
+                    print("File exists. Skipping.")
+
+                continue
+
+            (filename, headers) = urllib.request.urlretrieve(inputurl, outputfile)
+
+            if debugmode:
+                print(filename, headers)
+    except Exception as e:
+        if debugmode:
+            print (e)
+            print(sys.exc_info())
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+        return False
+
+    # Return successfully
+    return True
+
 # Download information about ONE specific Ubuntu kernel; suburl is not the complete url but the subdirectory (with final '/');
 # returns an array of one or more kernel packages (for e.g. the generic and lowlatency version of a kernel)
 def get_ubuntu_kernel_info(suburl):
@@ -536,7 +603,8 @@ def get_ubuntu_kernel_info(suburl):
     arch = ['amd64' if platformis64bit else 'i386'][0]
 
     # Create an empty dictionary object; create version from url
-    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'files': []}
+    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'files': [], 
+                'downloaded_files': 0}
 
     try:
         kernel['version_major'] = re.findall(u"v([0-9]+\.[0-9]+)", suburl)[0]
@@ -663,6 +731,8 @@ def get_ubuntu_kernel_info(suburl):
                 if re.match(u"^linux-(.*)-" + group + "$", rootname) or re.match(u"linux-(.+?)_all.deb", file[0]):
                     kernels[-1]['files'].append(file)
                     kernels[-1]['size'] += file[2]
+
+            kernels[-1]['downloaded_files'] = ubuntu_kernel_downloaded_files(kernels[-1])
 
     except:
         return []        
