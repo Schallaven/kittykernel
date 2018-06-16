@@ -421,10 +421,20 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
     <property name="can_focus">False</property>
     <property name="stock">gtk-index</property>
   </object>
+  <object class="GtkImage" id="image5">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-refresh</property>
+  </object>
   <object class="GtkImage" id="image6">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="icon_name">folder</property>
+  </object>
+  <object class="GtkImage" id="image7">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">user-trash-full</property>
   </object>
   <object class="GtkApplicationWindow" id="kittykewindow">
     <property name="width_request">900</property>
@@ -446,7 +456,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Kittykernel</property>
+                <property name="label" translatable="yes">_Kittykernel</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu1">
@@ -497,7 +507,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkMenuItem" id="menuitem2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Kernel _list</property>
+                <property name="label" translatable="yes">K_ernels</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu6">
@@ -516,7 +526,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="Refresh _all">
-                        <property name="label" translatable="yes">Update _apt</property>
+                        <property name="label" translatable="yes">Full refresh incl. _apt</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
@@ -525,80 +535,15 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <signal name="activate" handler="on_refresh_apt" swapped="no"/>
                       </object>
                     </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="menuitem9">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Kernel _group</property>
-                <property name="use_underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu" id="menu_kernel_group">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkMenuItem" id="menuitem14">
+                      <object class="GtkImageMenuItem" id="imagemenuitem3">
+                        <property name="label" translatable="yes">Refresh _Ubuntu kernels</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Remove all kernels from this group</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_remove_group" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem15">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Purge all kernels from this group</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_purge_group" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="menuitem">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_Kernel</property>
-                <property name="use_underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu" id="menu_kernel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem5">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Install</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_kernel_install" swapped="no"/>
-                        <accelerator key="i" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem3">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Remove</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_kernel_remove" swapped="no"/>
-                        <accelerator key="Delete" signal="activate"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menuitem6">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">_Purge</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_kernel_purge" swapped="no"/>
-                        <accelerator key="Delete" signal="activate" modifiers="GDK_SHIFT_MASK"/>
+                        <property name="image">image5</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_refresh_ubuntu" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -608,11 +553,13 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="menuitem7">
+                      <object class="GtkImageMenuItem" id="imagemenuitem4">
+                        <property name="label" translatable="yes">_Purge all kernels</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Purge _all</property>
                         <property name="use_underline">True</property>
+                        <property name="image">image7</property>
+                        <property name="use_stock">False</property>
                         <signal name="activate" handler="on_kernel_purge_all" swapped="no"/>
                       </object>
                     </child>
@@ -984,6 +931,58 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       </object>
     </child>
   </object>
+  <object class="GtkMenu" id="menu_kernel">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="menuitem5">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">_Install</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="on_kernel_install" swapped="no"/>
+        <accelerator key="i" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Remove</property>
+        <signal name="activate" handler="on_kernel_remove" swapped="no"/>
+        <accelerator key="Delete" signal="activate"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Purge</property>
+        <signal name="activate" handler="on_kernel_purge" swapped="no"/>
+        <accelerator key="Delete" signal="activate" modifiers="GDK_SHIFT_MASK"/>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="menu_kernel_group">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="menuitem14">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Remove all kernels in this group</property>
+        <signal name="activate" handler="on_remove_group" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem15">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Purge all kernels in this group</property>
+        <signal name="activate" handler="on_purge_group" swapped="no"/>
+      </object>
+    </child>
+  </object>
   <object class="GtkMenu" id="menu_kernel_ubuntu">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -1001,8 +1000,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem11">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="label" translatable="yes">_Remove</property>
-        <property name="use_underline">True</property>
+        <property name="label" translatable="yes">Remove</property>
         <signal name="activate" handler="on_kernel_remove" swapped="no"/>
         <accelerator key="Delete" signal="activate"/>
       </object>

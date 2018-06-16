@@ -319,17 +319,7 @@ class KittykeMainWindow():
     def fill_kernel_list_ubuntu(self):
         # Load a list of Ubuntu kernels if needed
         if len(self.kernels_ubuntu) == 0:
-            self.set_progress( _("Filling Ubuntu kernel list..."), 0.40)   
-   
-            self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
-
-            self.set_progress( _("Applying filters..."), 0.90)   
-            self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
-
-            for index, kernel in enumerate(self.kernels_ubuntu):
-                self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
-
-            self.set_progress( _("Ready."), 1.00)  
+            self.do_refresh_ubuntu()
 
         # Unset current model, if set; this will empty the list
         self.kerneltree.set_model(None)
@@ -522,6 +512,20 @@ class KittykeMainWindow():
         # Finish
         self.set_progress( _("Ready."), 1.00)    
 
+    # Do a refresh of the Ubuntu kernels
+    def do_refresh_ubuntu(self):
+        self.set_progress( _("Filling Ubuntu kernel list..."), 0.40)   
+   
+        self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
+
+        self.set_progress( _("Applying filters..."), 0.90)   
+        self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
+
+        for index, kernel in enumerate(self.kernels_ubuntu):
+            self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
+
+        self.set_progress( _("Ready."), 1.00)  
+
     # Refreshes the cache
     def on_refresh(self, widget):    
         self.do_refresh(False)
@@ -529,6 +533,10 @@ class KittykeMainWindow():
     # Refreshes and updates the cache
     def on_refresh_apt(self, widget):
         self.do_refresh(True)
+
+    # Refreshes the Ubuntu kernels
+    def on_refresh_ubuntu(self, widget):
+        self.do_refresh_ubuntu()
 
     # Shows the about dialog
     def on_about(self, widget):
