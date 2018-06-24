@@ -558,7 +558,7 @@ class KittykeMainWindow():
         dlg.add_credit_section("Github contributors", ["Fred-Barclay"])
 
         # Contributors, who contributed from #linux on Spotchat
-        dlg.add_credit_section("#linux (Spotchat) contributors", ["Mr W.", "Mr T.", "jeremy31"])
+        dlg.add_credit_section("#linux (Spotchat) contributors", ["Mr W.", "Mr T.", "jeremy31", "zcot"])
 
         # Run and destroy dialog afterwards        
         dlg.run()
