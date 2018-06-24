@@ -22,6 +22,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
 <interface>
   <requires lib="gtk+" version="3.4"/>
   <!-- interface-license-type gplv3 -->
+  <object class="GtkAccelGroup" id="accelgroup1"/>
   <object class="GtkDialog" id="dialog_kittypreferences">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Preferences</property>
@@ -578,6 +579,24 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
+                      <object class="GtkImageMenuItem" id="help_menu">
+                        <property name="label">gtk-help</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Opens the documentation</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_help" swapped="no"/>
+                        <accelerator key="F1" signal="activate"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkMenuItem" id="menuitem8">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -596,7 +615,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>

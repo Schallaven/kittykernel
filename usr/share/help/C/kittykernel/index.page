@@ -1,0 +1,13 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="index">
+<title>Kittykernel</title>
+<p>
+Kittykernel is a cat-friendly kernel manager for Linux Mint, Ubuntu, and other Debian derivates. It provides
+a modern and intuitive graphical user interface for advanced beginners as well as more advanced users.
+</p>
+<p>
+This guide gives a short overview of all the features and how to use them. You are reading Kittykernel guide version 0.1.
+</p>
+
+</page>

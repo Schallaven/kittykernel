@@ -538,6 +538,10 @@ class KittykeMainWindow():
     def on_refresh_ubuntu(self, widget):
         self.do_refresh_ubuntu()
 
+    # Show the help window
+    def on_help(self, widget):
+        os.system('yelp help:kittykernel')
+
     # Shows the about dialog
     def on_about(self, widget):
         # Setup the about dialog with all the important information
