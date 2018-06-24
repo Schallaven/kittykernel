@@ -489,7 +489,7 @@ def load_blacklist():
     # Return cleaned list
     return blacklist
 
-# Applies a blacklist to a kernel list; each entry in 'kernels' needs to have 'version_major', 'package', and 'active' properties
+# Applies a blacklist to a kernel list; each entry in 'kernels' needs to have 'version_major', 'package', and 'active'/'installed'/'downloaded' properties
 def apply_blacklist(kernels, blacklist):
     global debugmode
 
@@ -517,8 +517,8 @@ def apply_blacklist(kernels, blacklist):
                     print("Elimnated kernel '%s' with pattern '%s'" % (kernel["package"], entry["pattern"]))
                 break
 
-        # The active kernel is _never_ filtered
-        if kernel["active"]:
+        # The active, downloaded, and installed kernels are _never_ filtered
+        if kernel["active"] or kernel['installed'] or kernel['downloaded']:
             eliminate = False
 
         # If not eliminated then add to filtered list
@@ -603,7 +603,7 @@ def get_ubuntu_kernel_info(suburl):
     arch = ['amd64' if platformis64bit else 'i386'][0]
 
     # Create an empty dictionary object; create version from url
-    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'files': [], 
+    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'dowloaded': False, 'installed': False, 'files': [], 
                 'downloaded_files': 0}
 
     try:
