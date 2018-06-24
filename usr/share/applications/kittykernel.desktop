@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=KittyKernel
 Comment=Maowing all your kernel needs!
-Exec=kittykernel
+Exec=/usr/bin/kittykernel
 Icon=/usr/lib/kittykernel/kittykernel.svg
 Type=Application
 Categories=Settings;
