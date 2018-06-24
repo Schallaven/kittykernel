@@ -280,7 +280,7 @@ def get_kernels():
                 kernel_list.append(kernel)
 
         # Sort list by version and return it
-        return sorted(kernel_list, key=lambda item: list(map(str, item['version'].split('.'))), reverse=True) 
+        return sorted(kernel_list, key=lambda item: list(map(str, item['version'].replace('-', '.').split('.'))), reverse=True) 
 
     # If something is wrong, return an empty list
     except Exception as e:
