@@ -468,6 +468,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label">gtk-preferences</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Opens the preference dialog.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_preferences" swapped="no"/>
@@ -478,6 +479,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">Edit _blacklist</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Opens the blacklist in the default editor. Kittykernel needs to be restarted for any changes to take effect.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_blacklistedit" swapped="no"/>
@@ -494,6 +496,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Closes Kittykernel.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_quit" swapped="no"/>
@@ -519,6 +522,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label">gtk-refresh</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Refreshes the list of kernels in the repositories and PPAs without updating the cache.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_refresh" swapped="no"/>
@@ -530,6 +534,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">Full refresh incl. _apt</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Updates the apt cache and, subsequently, refreshes the list of kernels in the repositories and PPAs.</property>
                         <property name="use_underline">True</property>
                         <property name="image">image2</property>
                         <property name="use_stock">False</property>
@@ -541,6 +546,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">Refresh _Ubuntu kernels</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Updates the list of Ubuntu mainline kernels.</property>
                         <property name="use_underline">True</property>
                         <property name="image">image5</property>
                         <property name="use_stock">False</property>
@@ -558,6 +564,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">_Purge all kernels</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Purges all repository kernels (not the Ubuntu kernels) from the hard disk.</property>
                         <property name="use_underline">True</property>
                         <property name="image">image7</property>
                         <property name="use_stock">False</property>
@@ -600,6 +607,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkMenuItem" id="menuitem8">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Opens the Ubuntu tracker for Common Vulnerabilities and Exposures (CVE).</property>
                         <property name="label" translatable="yes">_CVE tracker</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_cvetracker" swapped="no"/>
@@ -609,6 +617,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                       <object class="GtkMenuItem" id="menuitem16">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Opens the website of the Linux kernel.</property>
                         <property name="label" translatable="yes">_Go to kernel.org</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_goto_kernelorg" swapped="no"/>
@@ -625,6 +634,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label">gtk-about</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Displays an info dialog with information on license and contributors.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_about" swapped="no"/>
@@ -957,6 +967,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Install this kernel</property>
         <property name="label" translatable="yes">_Install</property>
         <property name="use_underline">True</property>
         <signal name="activate" handler="on_kernel_install" swapped="no"/>
@@ -967,6 +978,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem3">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Removes this kernel. Does not delete configuration and additional files.</property>
         <property name="label" translatable="yes">Remove</property>
         <signal name="activate" handler="on_kernel_remove" swapped="no"/>
         <accelerator key="Delete" signal="activate"/>
@@ -976,6 +988,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem6">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Removes this kernel. Purges all configuration and additional files to free space.</property>
         <property name="label" translatable="yes">Purge</property>
         <signal name="activate" handler="on_kernel_purge" swapped="no"/>
         <accelerator key="Delete" signal="activate" modifiers="GDK_SHIFT_MASK"/>
@@ -989,6 +1002,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem14">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Removes all kernels from this group. Does not delete any configuration or additional files.</property>
         <property name="label" translatable="yes">Remove all kernels in this group</property>
         <signal name="activate" handler="on_remove_group" swapped="no"/>
       </object>
@@ -997,6 +1011,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem15">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Removes and purges all kernel files in this group.</property>
         <property name="label" translatable="yes">Purge all kernels in this group</property>
         <signal name="activate" handler="on_purge_group" swapped="no"/>
       </object>
@@ -1009,6 +1024,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem10">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Downloads the packages files and installs this Ubuntu mainline kernel.</property>
         <property name="label" translatable="yes">_Install</property>
         <property name="use_underline">True</property>
         <signal name="activate" handler="on_kernel_install" swapped="no"/>
@@ -1019,6 +1035,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkMenuItem" id="menuitem11">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="tooltip_text" translatable="yes">Removes the downloaded package files for this kernel.</property>
         <property name="label" translatable="yes">Remove</property>
         <signal name="activate" handler="on_kernel_remove" swapped="no"/>
         <accelerator key="Delete" signal="activate"/>
