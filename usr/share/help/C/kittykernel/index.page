@@ -1,13 +1,38 @@
 <page xmlns="http://projectmallard.org/1.0/"
       type="guide"
       id="index">
+<info>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
 <title>Kittykernel</title>
+
 <p>
 Kittykernel is a cat-friendly kernel manager for Linux Mint, Ubuntu, and other Debian derivates. It provides
 a modern and intuitive graphical user interface for advanced beginners as well as more advanced users.
 </p>
+
 <p>
-This guide gives a short overview of all the features and how to use them. You are reading Kittykernel guide version 0.1.
+This guide gives a short overview of all the features and how to use them. You are reading Kittykernel guide version 0.517.
 </p>
+
+<note style="warning">
+<p>Writing documentation takes time. At the moment, this documentation is not complete until someone spends more time writing it. Sorry.</p>
+</note>
+
+<section id="userinterface">
+ <title>User interface</title>
+ <p>This section explains all the user interface features.</p>
+</section>
+
+<section id="mechanics">
+ <title>Core mechanics</title>
+ <p>This section explains the mechanics of Kittykernel.</p>
+</section>
 
 </page>

@@ -1,0 +1,73 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="menus">
+<info>
+ <link type="guide" xref="index#userinterface"/>
+ <desc>A list of all menu items in the main menu and context menus.</desc>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
+<title>Kittykernel - Menus</title>
+
+<p>
+Description about menus
+</p>
+
+<section>
+ <title>Kittykernel</title>
+ <terms>
+  <item><title>Preferences</title>
+   <p>Opens the <link xref="preferences">preference dialog</link>.</p>
+  </item>
+  <item><title>Edit blacklist</title>
+   <p>Opens the <link xref="blacklist">blacklist</link> located at <code>~/.config/kittykernel/blacklist</code> in the default editor. Kittykernel needs to be restarted for any changes to take effect.</p>
+  </item>
+  <item><title>Quit</title>
+   <p>Closes Kittykernel.</p>
+  </item>
+ </terms>
+</section>
+
+<section>
+ <title>Kernels</title>
+ <terms>
+ <item><title>Refresh</title>
+   <p>Refreshes the list of kernels in the repositories and PPAs without updating the cache.</p>
+  </item>
+  <item><title>Full refresh incl. apt</title>
+   <p>Updates the apt cache and, subsequently, refreshes the list of kernels in the repositories and PPAs.</p>
+  </item>
+  <item><title>Refresh Ubuntu kernels</title>
+   <p>Updates the list of Ubuntu mainline kernels from <code>http://kernel.ubuntu.com/~kernel-ppa/mainline/</code></p>
+  </item>
+  <item><title>Purge all kernels</title>
+   <p>Purges all repository kernels (not the Ubuntu kernels) from the hard disk.</p>
+  </item>
+ </terms>
+</section>
+
+<section>
+ <title>Help</title>
+ <terms>
+ <item><title>Help</title>
+   <p>Opens the documentation you are currently reading.</p>
+  </item>
+  <item><title>CVE tracker</title>
+   <p>Opens the Ubuntu tracker for Common Vulnerabilities and Exposures (CVE) at 
+    <code>https://people.canonical.com/~ubuntu-security/cve/pkg/linux.html</code>.</p>
+  </item>
+  <item><title>Go to kernel.org</title>
+   <p>Opens the website of the Linux kernel at <code>https://www.kernel.org/</code>.</p>
+  </item>
+  <item><title>Info</title>
+   <p>Displays an info dialog with information on license and contributors.</p>
+  </item>
+ </terms>
+</section>
+
+</page>
