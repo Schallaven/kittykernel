@@ -660,6 +660,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkToolButton" id="toolbutton1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Closes Kittykernel.</property>
                 <property name="label" translatable="yes">Quit</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-quit</property>
@@ -675,6 +676,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkToolButton" id="toolbutton3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Opens the preference dialog.</property>
                 <property name="label" translatable="yes">Config</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-preferences</property>
@@ -689,6 +691,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkToolButton" id="toolbutton2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Refreshes the list of kernels from the repositories and PPAs.</property>
                 <property name="label" translatable="yes">Refresh</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-refresh</property>
@@ -704,6 +707,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkToolButton" id="toolbutton4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Jumps to the current kernel in the list.</property>
                 <property name="label" translatable="yes">Go to current kernel</property>
                 <property name="use_underline">True</property>
                 <property name="icon_name">go-home</property>
