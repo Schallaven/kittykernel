@@ -7,6 +7,10 @@
 # Don't show these very old kernels
 GROUP 4.4
 
+# Bad kernels, should not be used
+GROUP 4.13
+KERNEL .*4.15.0-24-generic$
+
 # Remove all lowlatency kernels
 KERNEL .*-lowlatency$
 
