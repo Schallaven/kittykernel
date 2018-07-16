@@ -158,7 +158,7 @@ def compare_versions(version1, version2):
 def refresh_cache(xwindow_id = 0):
     global cache
     # Starting synaptic with all the necessary parameters
-    cmd = ["gksudo", "--", "/usr/sbin/synaptic", "--hide-main-window", "--update-at-startup", "--non-interactive", "--parent-window-id", "%d" % xwindow_id]
+    cmd = ["pkexec", "/usr/sbin/synaptic", "--hide-main-window", "--update-at-startup", "--non-interactive", "--parent-window-id", "%d" % xwindow_id]
     comnd = subprocess.Popen(' '.join(cmd), shell=True)
     comnd.wait()
 
@@ -342,7 +342,7 @@ def get_kernel_support_times():
     return supportlist
 
 
-# Invokes synaptic with gksudo to do something with packages; operations is a list of tuples such as
+# Invokes synaptic with pkexec to do something with packages; operations is a list of tuples such as
 # ('install', pkg1), ('remove', pkg2), or ('purge', pkg3); this function does not check for additional
 # packages to be installed or removed (just the dependencies)
 def pkg_perform_operations(operations, xwindow_id = 0):
@@ -377,11 +377,11 @@ def pkg_perform_operations(operations, xwindow_id = 0):
         # Write everything to the file
         f.flush()
 
-        # Synaptic command with gksudo
-        cmd = ["gksudo", "--", "/usr/sbin/synaptic", "--hide-main-window", "--non-interactive", "--parent-window-id", "%s" % xwindow_id, "-o", "Synaptic::closeZvt=true",
-                                                     "--progress-str", "\"" + _("Installing kernel packages. Please wait, this can take some time.") + "\"", 
-                                                     "--finish-str", "\"" + _("The kernel was installed.") + "\"",
-                                                     "--set-selections-file", f.name]
+        # Synaptic command with pkexec
+        cmd = ["pkexec", "/usr/sbin/synaptic", "--hide-main-window", "--non-interactive", "--parent-window-id", "%s" % xwindow_id, "-o", "Synaptic::closeZvt=true",
+                                                "--progress-str", "\"" + _("Installing kernel packages. Please wait, this can take some time.") + "\"", 
+                                                "--finish-str", "\"" + _("The kernel was installed.") + "\"",
+                                                "--set-selections-file", f.name]
 
         out = subprocess.Popen(' '.join(cmd), shell=True)
 
