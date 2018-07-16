@@ -379,7 +379,7 @@ def pkg_perform_operations(operations, xwindow_id = 0):
 
         # Synaptic command with pkexec
         cmd = ["pkexec", "/usr/sbin/synaptic", "--hide-main-window", "--non-interactive", "--parent-window-id", "%s" % xwindow_id, "-o", "Synaptic::closeZvt=true",
-                                                "--progress-str", "\"" + _("Installing kernel packages. Please wait, this can take some time.") + "\"", 
+                                                "--progress-str", "\"" + _("Modifying kernel packages. Please wait, this can take some time.") + "\"", 
                                                 "--finish-str", "\"" + _("The kernel was installed.") + "\"",
                                                 "--set-selections-file", f.name]
 
