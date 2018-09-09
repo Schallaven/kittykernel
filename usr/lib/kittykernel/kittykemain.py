@@ -26,6 +26,8 @@
 #           comments. Read source code  of other FOSS projects  instead.
 #
 
+import threading
+import time
 import os
 import sys
 import gi
@@ -36,10 +38,11 @@ from enum import Enum;
 gi.require_version('Gtk', '3.0')
 gi.require_version('GdkX11', '3.0')  
 
-from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib
-
+from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib, GObject
+GObject.threads_init()
 
 import kittykecore
+import kittykeprogress
 
 
 # Identifiers for columns of the kernel group list
@@ -114,7 +117,7 @@ class KittykeMainWindow():
     # Initial refresh after startup
     def init_refresh(self):
         # Do the actual refresh
-        self.do_refresh(False)
+        self.do_refresh()
 
         # Only show warning until user read actually the warning text
         if self.config['Checks']['kittywarning'] == 'nokitty':
@@ -317,12 +320,16 @@ class KittykeMainWindow():
 
     # Fill in the list of Ubuntu kernels
     def fill_kernel_list_ubuntu(self):
-        # Load a list of Ubuntu kernels if needed
-        if len(self.kernels_ubuntu) == 0:
-            self.do_refresh_ubuntu()
-
         # Unset current model, if set; this will empty the list
         self.kerneltree.set_model(None)
+
+        # Load a list of Ubuntu kernels if needed
+        if len(self.kernels_ubuntu) == 0:   
+            self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
+            self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
+
+            for index, kernel in enumerate(self.kernels_ubuntu):
+                self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
 
         # Setup a new model: Icon, Major version, Icon (installed), Info, Download Size, Installed Size, Origins, Data index
         model_kernels = Gtk.ListStore(GdkPixbuf.Pixbuf, str, GdkPixbuf.Pixbuf, str, str, str, str, str, int) 
@@ -486,34 +493,80 @@ class KittykeMainWindow():
         self.builder.get_object("statustext").set_label(text)
         while Gtk.events_pending(): Gtk.main_iteration_do(False)
 
-    # Do a refresh, with or without cache-update
-    def do_refresh(self, update = False):      
-        # Remove all items from the Treeview
-        self.kerneltree.set_model(None)      
+    # Do a refresh without cache-update
+    def do_refresh(self):      
+        # Prepare progress window
+        dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel updates kernel information", False)
+        dlg.update(0.0, "Loading repository information...")
 
-        # Refresh cache by the method provided by the core functions
-        if update:
-            self.set_progress( _("Updating cache..."), 0.20)    
-            kittykecore.refresh_cache(self.window.get_window().get_xid())        
+        # Prepare task list
+        tasks = [   ("Filling kernel list...", self.fill_group_list),
+                    ("Updating current kernel and /boot information...", self.update_infobar) ]
 
-        # Fill the kernel list
-        self.set_progress( _("Filling kernel list..."), 0.40)   
+        # Prepare cache and clean treeviews
         kittykecore.reopen_cache() 
-        self.fill_group_list()
+        self.kerneltree.set_model(None)      
+        self.kernelgroup.set_model(None)
 
-        # Update the info bar with current kernel and size of /boot
-        self.set_progress( _("Updating current kernel and /boot..."), 0.60)    
-        self.update_infobar()
+        # Run each task in a thread
+        for index, task in enumerate(tasks):
+            Gdk.threads_enter()
 
-        # Update changelog
-        self.set_progress( _("Update change log..."), 0.80)    
-        self.update_changelog()
+            # Update the progressbar fraction and text
+            dlg.update(index/len(tasks), task[0])
+            
+            # Prepare thread and start it
+            thread = threading.Thread(target=task[1])
+            thread.start()
 
-        # Finish
-        self.set_progress( _("Ready."), 1.00)    
+            # Until the thread is finished, process input (mainly for the dialog)
+            while thread.is_alive():
+                while Gtk.events_pending(): Gtk.main_iteration_do(False)
+
+            Gdk.threads_leave()
+
+        # Clean up
+        dlg.update(1.0, "Finished.")
+        dlg.destroy()
+
+        del dlg
+        return        
 
     # Do a refresh of the Ubuntu kernels
     def do_refresh_ubuntu(self):
+        print("Blablabla")
+        # Prepare progress window
+        dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel updates Ubuntu kernel information", False)
+        dlg.update(0.0, "Loading repository information...")
+
+        # Prepare task list
+        tasks = [   ("Filling Ubuntu kernel list...", self.fill_kernel_list_ubuntu) ]
+
+        # Run each task in a thread
+        for index, task in enumerate(tasks):
+            Gdk.threads_enter()
+
+            # Update the progressbar fraction and text
+            dlg.update(index/len(tasks), task[0])
+            
+            # Prepare thread and start it
+            thread = threading.Thread(target=task[1])
+            thread.start()
+
+            # Until the thread is finished, process input (mainly for the dialog)
+            while thread.is_alive():
+                while Gtk.events_pending(): Gtk.main_iteration_do(False)
+
+            Gdk.threads_leave()
+
+        # Clean up
+        dlg.update(1.0, "Finished.")
+        dlg.destroy()
+
+        del dlg
+        return      
+
+
         self.set_progress( _("Filling Ubuntu kernel list..."), 0.40)   
    
         self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
@@ -528,11 +581,12 @@ class KittykeMainWindow():
 
     # Refreshes the cache
     def on_refresh(self, widget):    
-        self.do_refresh(False)
+        self.do_refresh()
 
-    # Refreshes and updates the cache
+    # Updates the cache and refreshes
     def on_refresh_apt(self, widget):
-        self.do_refresh(True)
+        kittykecore.refresh_cache(self.window.get_window().get_xid())  
+        self.do_refresh()
 
     # Refreshes the Ubuntu kernels
     def on_refresh_ubuntu(self, widget):
@@ -780,7 +834,7 @@ class KittykeMainWindow():
                         dialog.destroy()
 
                     kittykecore.perform_kernels( [self.kernels[index]['package']], 'install', self.window.get_window().get_xid())
-                    self.do_refresh(False)
+                    self.do_refresh()
 
 
     # Removes a kernel
@@ -803,7 +857,7 @@ class KittykeMainWindow():
             # Is this kernel installed?
             if self.kernels[index]['installed']:
                 kittykecore.perform_kernels( [self.kernels[index]['package']], 'remove', self.window.get_window().get_xid())
-                self.do_refresh(False)
+                self.do_refresh()
 
     # Purges a kernel
     def on_kernel_purge(self, widget):
@@ -829,7 +883,7 @@ class KittykeMainWindow():
             # Is this kernel installed?
             if self.kernels[index]['installed'] or self.kernels[index]['downloaded']:
                 kittykecore.perform_kernels( [self.kernels[index]['package']], 'purge', self.window.get_window().get_xid())
-                self.do_refresh(False)
+                self.do_refresh()
 
     # Purges all kernels except the active one
     def on_kernel_purge_all(self, widget):
@@ -859,7 +913,7 @@ class KittykeMainWindow():
         # Send to purge function and refresh list afterwards
         else:
             kittykecore.perform_kernels( kernels_to_purge, 'purge', self.window.get_window().get_xid())
-            self.do_refresh(False)
+            self.do_refresh()
 
     # Removes all kernels from the currently selected group
     def on_remove_group(self, widget):
@@ -901,7 +955,7 @@ class KittykeMainWindow():
         # Send to purge function and refresh list afterwards
         else:
             kittykecore.perform_kernels( kernels_to_remove, 'remove', self.window.get_window().get_xid())
-            self.do_refresh(False)
+            self.do_refresh()
 
 
     # Purges all kernels from the currently selected group
@@ -944,7 +998,7 @@ class KittykeMainWindow():
         # Send to purge function and refresh list afterwards
         else:
             kittykecore.perform_kernels( kernels_to_purge, 'purge', self.window.get_window().get_xid())
-            self.do_refresh(False)
+            self.do_refresh()
 
 
 
