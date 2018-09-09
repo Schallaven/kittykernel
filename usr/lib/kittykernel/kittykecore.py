@@ -603,7 +603,7 @@ def get_ubuntu_kernel_info(suburl):
     arch = ['amd64' if platformis64bit else 'i386'][0]
 
     # Create an empty dictionary object; create version from url
-    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'dowloaded': False, 'installed': False, 'files': [], 
+    kernel = {  'version_major': '', 'version': '', 'url': '', 'changes': '', 'package': '', 'size': 0, 'active': False, 'downloaded': False, 'installed': False, 'files': [], 
                 'downloaded_files': 0}
 
     try:
