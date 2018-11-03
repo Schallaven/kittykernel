@@ -192,19 +192,6 @@ class KittykeMainWindow():
             # Setup a new model for the groups
             model_groups = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str)
 
-            # Get kernels
-            self.kernels = kittykecore.get_kernels()
-
-            # Download changelog of highest version
-            if len(self.kernels) > 0:
-                self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
-
-            # Apply blacklist to the kernel list
-            self.kernels = kittykecore.apply_blacklist(self.kernels, self.blacklist)
-
-            # Get support times
-            self.support_times = kittykecore.get_kernel_support_times()
-
             # Add kernel groups
             for kernel in self.kernels:
                 # Check if there is already a group with the same name and continue if so
@@ -501,9 +488,7 @@ class KittykeMainWindow():
         dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel updates kernel information", False)
         dlg.update(0.0, "Loading repository information...")
 
-        # Prepare task list
-        #tasks = [   ("Filling kernel list...", self.fill_group_list),
-        #            ("Updating current kernel and /boot information...", self.update_infobar) ]
+        # Prepare task list   
         tasks = [   ("Loading ~/.config/kittykernel/blacklist", kittykethreads.Worker_Load_Blacklist),
                     ("Loading /usr/lib/kittykernel/kernel_support", kittykethreads.Worker_Load_Supporttimes),
                     ("Loading kernel information from repository", kittykethreads.Worker_Load_Kernels),
@@ -551,6 +536,11 @@ class KittykeMainWindow():
         dlg.update(1.0, "Finished.")
         dlg.destroy()
         del dlg
+
+        # Fill the GUI stuff
+        self.fill_group_list()
+        self.update_infobar()
+
         return        
 
     # Do a refresh of the Ubuntu kernels
