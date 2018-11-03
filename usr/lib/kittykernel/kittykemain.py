@@ -504,11 +504,11 @@ class KittykeMainWindow():
         # Prepare task list
         #tasks = [   ("Filling kernel list...", self.fill_group_list),
         #            ("Updating current kernel and /boot information...", self.update_infobar) ]
-        tasks = [   ("Loading ~/.config/kittykernel/blacklist...", kittykethreads.Worker_Load_Blacklist),
+        tasks = [   ("Loading ~/.config/kittykernel/blacklist", kittykethreads.Worker_Load_Blacklist),
                     ("Loading /usr/lib/kittykernel/kernel_support", kittykethreads.Worker_Load_Supporttimes),
-                    ("Loading kernel information from repository...", kittykethreads.Worker_Load_Kernels),
-                    ("Loading changelogs...", kittykethreads.Worker_Load_Changelogs),
-                    ("Loading Ubuntu mainline kernel information from http://kernel.ubuntu.com/~kernel-ppa/mainline/...", kittykethreads.Worker_Load_Ubuntu_Kernels) ]
+                    ("Loading kernel information from repository", kittykethreads.Worker_Load_Kernels),
+                    ("Downloading changelogs", kittykethreads.Worker_Load_Changelogs),
+                    ("Loading Ubuntu mainline kernel information from\nhttp://kernel.ubuntu.com/~kernel-ppa/mainline/", kittykethreads.Worker_Load_Ubuntu_Kernels) ]
 
         # Prepare cache and clean treeviews
         kittykecore.reopen_cache() 
