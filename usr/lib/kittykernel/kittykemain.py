@@ -541,54 +541,7 @@ class KittykeMainWindow():
         self.fill_group_list()
         self.update_infobar()
 
-        return        
-
-    # Do a refresh of the Ubuntu kernels
-    def do_refresh_ubuntu(self):
-        print("Blablabla")
-        # Prepare progress window
-        dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel updates Ubuntu kernel information", False)
-        dlg.update(0.0, "Loading repository information...")
-
-        # Prepare task list
-        tasks = [   ("Filling Ubuntu kernel list...", self.fill_kernel_list_ubuntu) ]
-
-        # Run each task in a thread
-        for index, task in enumerate(tasks):
-            Gdk.threads_enter()
-
-            # Update the progressbar fraction and text
-            dlg.update(index/len(tasks), task[0])
-            
-            # Prepare thread and start it
-            thread = threading.Thread(target=task[1])
-            thread.start()
-
-            # Until the thread is finished, process input (mainly for the dialog)
-            while thread.is_alive():
-                while Gtk.events_pending(): Gtk.main_iteration_do(False)
-
-            Gdk.threads_leave()
-
-        # Clean up
-        dlg.update(1.0, "Finished.")
-        dlg.destroy()
-
-        del dlg
         return      
-
-
-        self.set_progress( _("Filling Ubuntu kernel list..."), 0.40)   
-   
-        self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
-
-        self.set_progress( _("Applying filters..."), 0.90)   
-        self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
-
-        for index, kernel in enumerate(self.kernels_ubuntu):
-            self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
-
-        self.set_progress( _("Ready."), 1.00)  
 
     # Refreshes the cache
     def on_refresh(self, widget):    
