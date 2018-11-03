@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 #  kittykernel
 #  
@@ -40,9 +40,11 @@ gi.require_version('GdkX11', '3.0')
 
 from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib, GObject
 GObject.threads_init()
+Gdk.threads_init()
 
 import kittykecore
 import kittykeprogress
+import kittykethreads
 
 
 # Identifiers for columns of the kernel group list
@@ -103,8 +105,8 @@ class KittykeMainWindow():
             self.kernels = []
             self.kernels_ubuntu = []     
 
-            # Hesitate a little bit with updating, so that the user sees the window before the actual first update happens
-            GLib.timeout_add(1000, self.init_refresh)            
+            # Do an initial refresh       
+            self.init_refresh()
 
             # Start main loop
             Gtk.main()
@@ -193,7 +195,7 @@ class KittykeMainWindow():
             # Get kernels
             self.kernels = kittykecore.get_kernels()
 
-            # Download kernel of highest version
+            # Download changelog of highest version
             if len(self.kernels) > 0:
                 self.changelog = kittykecore.get_kernel_changelog(self.kernels[-1]['fullname'])    
 
@@ -500,8 +502,13 @@ class KittykeMainWindow():
         dlg.update(0.0, "Loading repository information...")
 
         # Prepare task list
-        tasks = [   ("Filling kernel list...", self.fill_group_list),
-                    ("Updating current kernel and /boot information...", self.update_infobar) ]
+        #tasks = [   ("Filling kernel list...", self.fill_group_list),
+        #            ("Updating current kernel and /boot information...", self.update_infobar) ]
+        tasks = [   ("Loading ~/.config/kittykernel/blacklist...", kittykethreads.Worker_Load_Blacklist),
+                    ("Loading /usr/lib/kittykernel/kernel_support", kittykethreads.Worker_Load_Supporttimes),
+                    ("Loading kernel information from repository...", kittykethreads.Worker_Load_Kernels),
+                    ("Loading changelogs...", kittykethreads.Worker_Load_Changelogs),
+                    ("Loading Ubuntu mainline kernel information from http://kernel.ubuntu.com/~kernel-ppa/mainline/...", kittykethreads.Worker_Load_Ubuntu_Kernels) ]
 
         # Prepare cache and clean treeviews
         kittykecore.reopen_cache() 
@@ -510,25 +517,39 @@ class KittykeMainWindow():
 
         # Run each task in a thread
         for index, task in enumerate(tasks):
-            Gdk.threads_enter()
-
             # Update the progressbar fraction and text
             dlg.update(index/len(tasks), task[0])
             
-            # Prepare thread and start it
-            thread = threading.Thread(target=task[1])
-            thread.start()
+            # Prepare thread
+            if index in [2, 4]:
+                thread = task[1](self.blacklist)
+            elif index == 3:
+                thread = task[1](self.kernels)
+            else:
+                thread = task[1]()
 
+            # And start it
+            thread.start()                   
+            
             # Until the thread is finished, process input (mainly for the dialog)
             while thread.is_alive():
                 while Gtk.events_pending(): Gtk.main_iteration_do(False)
 
-            Gdk.threads_leave()
+            # Gather information from threads
+            if index == 0:
+                self.blacklist = thread.blacklist
+            elif index == 1:
+                self.support_times = thread.support_times
+            elif index == 2:
+                self.kernels = thread.kernels
+            elif index == 3:
+                self.changelog = thread.changelogs[0]
+            elif index == 4:
+                self.kernels_ubuntu = thread.kernels_ubuntu
 
         # Clean up
         dlg.update(1.0, "Finished.")
         dlg.destroy()
-
         del dlg
         return        
 

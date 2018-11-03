@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 #  kittykernel
 #  
@@ -35,7 +35,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('GdkX11', '3.0')  
 
-from gi.repository import Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib
+from gi.repository import GObject, Gtk, Gdk, GdkPixbuf, GdkX11, Gio, Pango, GLib
 _ = gettext.gettext
 
 # Define class for progress dialog
@@ -58,6 +58,7 @@ class KittyKeProgressDialog():
             # Save and set the parent window
             self._parent = parent
             self._dialogbox.set_transient_for(self._parent)
+            self._dialogbox.set_modal(True)
 
             # True if user clicked 'abort'
             self._builder.get_object("button_abort").set_sensitive(can_abort)
@@ -103,37 +104,3 @@ class KittyKeProgressDialog():
     def should_abort(self):
         return self._abort
 
-
-# Helper thread class that runs the event loop
-class KittyKeProgressThread(threading.Thread):
-    def __init__(self):
-        super(KittyKeProgressThread, self).__init__()
-        self._running = True
-
-    def run(self):
-        print("running")
-        Gdk.threads_enter()
-        while(self._running):
-            Gtk.main_iteration_do(True)
-        Gdk.threads_leave()
-        print("stopping")
-
-    def stop(self):
-        self._running = False
-
-
-# Script file is run directly... have a test run here
-if __name__ == '__main__':
-    dlg = KittyKeProgressDialog(None, "KittyKernel updates kernel information", False)
-    dlg.update(0.0, "Loading repository information...")
-
-    for i in range(10):
-        time.sleep(1)
-        dlg.update((i+1)/10, "Step " + str(i+1))
-
-        if dlg.should_abort():
-            break
-
-    dlg.update(1.0, "Finished.")
-
-    del dlg
