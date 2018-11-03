@@ -3,4 +3,5 @@ __pycache__
 kittykernel.deb
 debian.deb
 debian/usr
+.ui~
 
