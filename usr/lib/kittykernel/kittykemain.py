@@ -95,6 +95,7 @@ class KittykeMainWindow():
             # The changelog needs a monospace font
             self.changelogview = self.builder.get_object("changelogview")
             self.changelogview.modify_font(Pango.FontDescription("Monospace")) 
+            self.changelogs = []
 
             # Main window handle
             self.window = self.builder.get_object("kittykewindow")
@@ -146,10 +147,7 @@ class KittykeMainWindow():
         self.kerneltree = self.builder.get_object("treeview_kernels")
 
         # Set handler for selection change
-        self.kernelgroup.get_selection().connect("changed", self.on_kernel_major_changed)
-
-        # The changelog; there is only one currently - the highest kernel will have the full changelog including everything else
-        self.changelog = ""
+        self.kernelgroup.get_selection().connect("changed", self.on_kernel_major_changed)    
 
         # Construct the column list for columns 1 to 7 (range is exclusive on the upper bound)
         columns = [self.builder.get_object(item) for item in ["tree_kernels_column"+str(x) for x in range(1,8)]]
@@ -356,13 +354,30 @@ class KittykeMainWindow():
 
         return model[groupiter][Group_columns.KITTYKE_GROUP_VERSION.value]
 
-
     # Fill in the list of kernels based on the major version selected
     def fill_kernel_list(self, selected_major):
         if selected_major == 'ubuntu mainline':
+            # Fill kernel list with Ubuntu mainline kernels
             self.fill_kernel_list_ubuntu()
+
+            # Set changelog window to a warning text
+            self.changelogview.get_buffer().set_text( _("By default, Ubuntu-based systems run with the Ubuntu kernels provided by the Ubuntu repositories. "
+                                                        "However it is handy to be able to test with unmodified upstream kernels to help locate problems in "
+                                                        "Ubuntu kernel patches, or to confirm that upstream has fixed a specific issue. To this end Ubuntu now "
+                                                        "offers select upstream kernel builds. These kernels are made from unmodified kernel source but using "
+                                                        "the Ubuntu kernel configuration files. These are then packaged as Ubuntu .deb files for simple installation, "
+                                                        "saving you the time of compiling kernels, and debugging build issues.\n\n"
+                                                        "These kernels are not supported and are not appropriate for production use.\n\n"
+                                                        "Source: https://wiki.ubuntu.com/Kernel/MainlineBuilds") )
         else:
-            self.fill_kernel_list_repo(selected_major)        
+            # Fill kernel list
+            self.fill_kernel_list_repo(selected_major)    
+
+            # Check if we have a changelog for this kernel group
+            if selected_major in self.changelogs:
+                self.changelogview.get_buffer().set_text(self.changelogs[selected_major])
+            else:
+                self.changelogview.get_buffer().set_text( _("No changelog available for this kernel version. Sorry.") )
 
     # Called each time a user selects an entry in the major version list
     def on_kernel_major_changed(self, selection):
@@ -411,10 +426,6 @@ class KittykeMainWindow():
         self.builder.get_object("current_kernel").set_label( _("Current kernel version: <b>%s</b>. ") % (kittykecore.get_current_kernel()) \
                                                            + _("/boot: <b>%s</b> of %s free. ") % (kittykecore.sizeof_fmt(sizeofboot[0]), kittykecore.sizeof_fmt(sizeofboot[1])) \
                                                            + _("Kernels occupy <b>%s</b> of space.") % (kittykecore.sizeof_fmt(sizeofkernels)) )
-
-    # Updates the changelog (mainly the colors)
-    def update_changelog(self):
-        self.changelogview.get_buffer().set_text(self.changelog)
 
     # Closes the window and exits kittykernel
     def close_window(self, window, event):
@@ -528,7 +539,7 @@ class KittykeMainWindow():
             elif index == 2:
                 self.kernels = thread.kernels
             elif index == 3:
-                self.changelog = thread.changelogs[0]
+                self.changelogs = thread.changelogs
             elif index == 4:
                 self.kernels_ubuntu = thread.kernels_ubuntu
 

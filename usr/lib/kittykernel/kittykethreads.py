@@ -83,10 +83,8 @@ class Worker_Load_Changelogs(threading.Thread):
         self._kernels = kernels
 
     def run(self):  
-        # Download changelog of highest version
-        # TODO: Load changelog for every major version
-        if len(self._kernels) > 0:            
-            self.changelogs.append(kittykecore.get_kernel_changelog(self._kernels[-1]['fullname']))
+        # Load changelog for every major version        
+        self.changelogs = kittykecore.get_kernel_changelogs(self._kernels)
         return
 
 # Worker for updating the Ubuntu kernel information from the web

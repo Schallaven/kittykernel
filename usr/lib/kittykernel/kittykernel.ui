@@ -777,7 +777,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="orientation">vertical</property>
-            <property name="position">400</property>
+            <property name="position">325</property>
             <property name="position_set">True</property>
             <child>
               <object class="GtkPaned" id="middlepaned">
@@ -893,6 +893,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="editable">False</property>
+                    <property name="wrap_mode">word</property>
                     <property name="cursor_visible">False</property>
                   </object>
                 </child>

@@ -292,6 +292,62 @@ def get_kernels():
             print(exc_type, fname, exc_tb.tb_lineno)
         return []
 
+# Gets the kernel changelogs for all major versions
+def get_kernel_changelogs(kernels):
+    # Changelog path
+    changelog_path = os.path.expanduser("~/.config/kittykernel/changelogs")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(changelog_path, exist_ok=True)
+
+    # Create changelog dictionary: key should be major version and 
+    changelogs = {}
+
+    # Check each kernel
+    for kernel in kernels:
+        # Already in list
+        if kernel['version_major'] in changelogs:
+            continue
+
+        # Log file name
+        logfile = changelog_path + '/' + kernel['version_major'] + '.log'
+
+        # Already on file?
+        if os.path.isfile(logfile):
+            # Open file and read first line
+            with open(logfile, "r") as f:
+                version_on_file = f.readline()
+
+            # If version on file is latest (or even newer for some reason), then 
+            # use simply this file and continue
+            if compare_versions(kernel['version'], version_on_file) != 1:
+                # Open file and read all lines
+                with open(logfile, "r") as f:
+                    log = f.readlines()
+
+                # Remove first line
+                del log[0]
+
+                # Join lines and add to changelogs; then continue
+                changelogs[kernel['version_major']] = ''.join(log)
+                continue
+
+        # Download changelog: since the list is sorted from latest to oldest versions, we do
+        # not need to make additional checks: the first item for each major version is always
+        # the latest
+        log = get_kernel_changelog(kernel['fullname'])
+
+        # Write to file
+        with open(logfile, "w") as f:
+            f.write(kernel['version'] + '\n')
+            f.write(log)
+
+        # Append to list
+        changelogs[kernel['version_major']] = log
+
+    # Return all the beautiful changelogs!
+    return changelogs
+
 # Gets the kernel changelog as unicode string; string is empty, if something went wrong
 def get_kernel_changelog(fullname):
     global cache
