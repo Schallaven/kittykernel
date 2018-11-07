@@ -485,13 +485,7 @@ class KittykeMainWindow():
             kittykecore.save_config(self.config)
 
         # It is important NOT to destroy this dialog if we want to show it again
-        prefdialog.hide()
-
-    # Sets text and fraction of progressbar; performs a Gtk iteration to update
-    def set_progress(self, text, fraction):
-        self.builder.get_object("statusprogress").set_fraction(fraction)
-        self.builder.get_object("statustext").set_label(text)
-        while Gtk.events_pending(): Gtk.main_iteration_do(False)
+        prefdialog.hide()   
 
     # Do a refresh without cache-update
     def do_refresh(self):      
