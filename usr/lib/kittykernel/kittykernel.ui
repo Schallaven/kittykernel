@@ -895,6 +895,9 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                     <property name="editable">False</property>
                     <property name="wrap_mode">word</property>
                     <property name="cursor_visible">False</property>
+					<property name="top_margin">5</property>                	
+					<property name="left_margin">5</property>
+                	<property name="right_margin">5</property>
                   </object>
                 </child>
               </object>
