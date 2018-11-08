@@ -603,6 +603,17 @@ class KittykeMainWindow():
     def on_blacklistedit(self, widget):
         subprocess.call(["xdg-open", os.path.expanduser("~/.config/kittykernel/blacklist")])
 
+    # Resets the blacklist to default one
+    def on_blacklistreset(self, widget):
+        dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.WARNING, Gtk.ButtonsType.YES_NO, _("Reseting blacklist"))
+        dialog.format_secondary_markup(_("KittyKernel is about to reset your user blacklist <b>%s</b> with the default one at <b>/usr/lib/kittykernel/blacklist_default</b>\n\n" 
+                                       "Are you sure?") % (os.path.expanduser("~/.config/kittykernel/blacklist")))
+        
+        if dialog.run() == Gtk.ResponseType.YES:      
+            kittykecore.reset_blacklist()      
+
+        dialog.destroy()
+
     # Get iter of active kernel in the current list; returns None if not in current list/not found
     def get_iter_of_current_kernel(self):
         if self.get_kernel_major_selected() == 'ubuntu mainline':

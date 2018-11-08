@@ -470,6 +470,12 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                       </object>
                     </child>
                     <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem2">
                         <property name="label" translatable="yes">Edit _blacklist</property>
                         <property name="visible">True</property>
@@ -478,6 +484,16 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_blacklistedit" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="resetblacklist">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Resets the user blacklist with the predefined one.</property>
+                        <property name="label" translatable="yes">Reset b_lacklist</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_blacklistreset" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -894,10 +910,10 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                     <property name="can_focus">True</property>
                     <property name="editable">False</property>
                     <property name="wrap_mode">word</property>
+                    <property name="left_margin">5</property>
+                    <property name="right_margin">5</property>
+                    <property name="top_margin">5</property>
                     <property name="cursor_visible">False</property>
-					<property name="top_margin">5</property>                	
-					<property name="left_margin">5</property>
-                	<property name="right_margin">5</property>
                   </object>
                 </child>
               </object>

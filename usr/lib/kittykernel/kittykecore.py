@@ -505,7 +505,6 @@ def perform_kernels(fullnames, verb, xwindow_id = 0, headers = True, extras = Tr
             print(exc_type, fname, exc_tb.tb_lineno)
         return -1
 
-
 # Opens and loads the filter list from ~/.config/kittykernel/blacklist; will create an empty file if the file does not exist!
 def load_blacklist():
     # Blacklist path
@@ -583,6 +582,22 @@ def apply_blacklist(kernels, blacklist):
 
     # Return filtered list
     return kernels_filtered
+
+# Resets the blacklist
+def reset_blacklist():
+    # Blacklist path
+    blacklist_file = os.path.expanduser("~/.config/kittykernel/blacklist")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(os.path.dirname(blacklist_file), exist_ok=True)
+
+    # Open default blacklist
+    with open("/usr/lib/kittykernel/blacklist_default", "r") as f:
+        default_blacklist = f.readlines()
+
+    # Open user blacklist a write contents to it (will overwrite the file if it exists)
+    with open(blacklist_file, "w+") as f:
+        f.writelines(default_blacklist)
 
 # Returns the number of files, which are downloaded from this kernel
 def ubuntu_kernel_downloaded_files(kernel):
