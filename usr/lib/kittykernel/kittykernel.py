@@ -35,8 +35,6 @@ import subprocess
 from kittykemain import KittykeMainWindow
 
 # Check for another instance of kittykernel; if there is one, then just exit this process
-print("Checking for another kittykernel process...")
-
 try:
     numKittyKernel = subprocess.check_output("ps -A | grep kittykernel_main_proc | wc -l", shell = True).decode("utf-8").strip()
     if (numKittyKernel != "0"):
