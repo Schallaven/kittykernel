@@ -32,7 +32,6 @@ import sys
 import gettext
 import setproctitle
 import subprocess
-from kittykemain import KittykeMainWindow
 
 # Check for another instance of kittykernel; if there is one, then just exit this process
 try:
@@ -50,6 +49,20 @@ setproctitle.setproctitle("kittykernel_main_proc")
 # Load the language-definitions (i18n) for kittykernel
 gettext.install("kittykernel", "/usr/share/kittykernel/locale")
 
-# Starts the application
-KittykeMainWindow()
+# GUI should be used
+use_GUI = False
+
+# X is running => Start GUI
+if "DISPLAY" in os.environ:
+    if len(os.environ["DISPLAY"]) > 0:
+        use_GUI = True
+
+# Start Gui or Terminal version of KittyKernel: it is important to only import the GUI or TERMINAL modules here, otherwise
+# KittyKernel will not run when run in the wrong environment
+if use_GUI == True:
+    from kittykemain import KittykeMainWindow
+    KittykeMainWindow()
+else:
+    print("TODO: Terminal version of KittyKernel")
+
 
