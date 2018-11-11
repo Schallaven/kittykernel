@@ -76,9 +76,10 @@ if args["gui"] == True:
 # Start Gui or console version of kittykernel: it is important to only import the GUI or console UI modules here, otherwise
 # kittykernel will not run when run in the wrong environment
 if use_GUI == True:
-    from kittykemain import KittykeMainWindow
-    KittykeMainWindow()
+    from kittykemain import KittykeMainWindow    
 else:
-    print("TODO: Console version of KittyKernel")
+    from kittykeconsole import KittykeMainWindow
+
+KittykeMainWindow()
 
 

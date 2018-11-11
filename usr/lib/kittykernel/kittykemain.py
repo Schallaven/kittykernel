@@ -66,7 +66,7 @@ class Columns(Enum):
     KITTYKE_DATA_INDEX = 8
 
 
-# ittykeMainWindow class is the main class of the application; it is responsible for the main window
+# KittykeMainWindow class is the main class of the application; it is responsible for the main window
 class KittykeMainWindow():
 
     # Setup the UI and some parameters
