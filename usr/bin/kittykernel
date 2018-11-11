@@ -27,6 +27,7 @@
 #
 
 import os
+import sys
 
 command = "/usr/lib/kittykernel/kittykernel.py"
-os.system(command)
+os.system(command + " " + " ".join(sys.argv[1:]))

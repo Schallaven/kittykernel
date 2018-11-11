@@ -32,6 +32,15 @@ import sys
 import gettext
 import setproctitle
 import subprocess
+import argparse
+
+# All the beautiful arguments kittykernel supports
+parser = argparse.ArgumentParser(prog = "kittykernel", description = "Kittykernel - Maow all your kernel needs")
+
+parser.add_argument("-c", "--console", help = "use console user interface even if X-server is available", action='store_true')
+parser.add_argument("-g", "--gui", help = "use graphical user interface even if X-server is not detected", action='store_true')
+
+args = vars(parser.parse_args())
 
 # Check for another instance of kittykernel; if there is one, then just exit this process
 try:
@@ -57,12 +66,19 @@ if "DISPLAY" in os.environ:
     if len(os.environ["DISPLAY"]) > 0:
         use_GUI = True
 
-# Start Gui or Terminal version of KittyKernel: it is important to only import the GUI or TERMINAL modules here, otherwise
-# KittyKernel will not run when run in the wrong environment
+# User insists on console UI?
+if args["console"] == True:
+    use_GUI = False
+
+if args["gui"] == True:
+    use_GUI = True
+
+# Start Gui or console version of kittykernel: it is important to only import the GUI or console UI modules here, otherwise
+# kittykernel will not run when run in the wrong environment
 if use_GUI == True:
     from kittykemain import KittykeMainWindow
     KittykeMainWindow()
 else:
-    print("TODO: Terminal version of KittyKernel")
+    print("TODO: Console version of KittyKernel")
 
 
