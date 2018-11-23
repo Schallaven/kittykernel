@@ -241,6 +241,12 @@ class KittykeMainWindow():
                 # Add to model
                 model_groups.insert_before(iternextrow, [self.theme.load_icon("gtk-execute", 22, 0), node_markup, kernel['version_major']])
 
+            # Add empty line and "All installed kernels"-group
+            num_installed = [1 if x['installed'] else 0 for x in self.kernels].count(1)  
+            model_groups.append([None, "", "separator"])
+            model_groups.append([self.theme.load_icon("gtk-execute", 22, 0), 
+                    "Show installed kernels\n<span foreground='%s'>%d</span> kernels installed in total" % (self.config['Colors']['installed'], num_installed), "kernels_installed"])
+
             # Add empty line and Ubuntu main line kernels            
             model_groups.append([None, "", "separator"])
             model_groups.append([GdkPixbuf.Pixbuf.new_from_file_at_scale("/usr/lib/kittykernel/ubuntu.svg", 22, 22, True), 
@@ -263,6 +269,13 @@ class KittykeMainWindow():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
 
+    # Is the selected group a special group, i.e. starts with a letter?
+    def is_special_kernel_group(self, group_name):
+        if len(group_name) == 0:
+            return False
+
+        return group_name[0].isnumeric()
+
     # Fill in the list of regular kernels (repo)
     def fill_kernel_list_repo(self, selected_major):
         # Unset current model, if set; this will empty the list
@@ -273,8 +286,8 @@ class KittykeMainWindow():
 
         # Add kernels to model
         for index, kernel in enumerate(self.kernels):
-            # Should be the major version given
-            if not kernel['version_major'] == selected_major:
+            # Should be the major version given OR the kernel should be installed if the respective special group is selected
+            if not (kernel['version_major'] == selected_major or (selected_major == 'kernels_installed' and kernel['installed'])):                
                 continue
 
             # Show a symbol if the kernel is installed (checkmark)
@@ -376,6 +389,8 @@ class KittykeMainWindow():
             # Check if we have a changelog for this kernel group
             if selected_major in self.changelogs:
                 self.changelogview.get_buffer().set_text(self.changelogs[selected_major])
+            elif selected_major == 'kernels_installed':
+                self.changelogview.get_buffer().set_text( _("This group shows all installed kernels on your system in one convenient list.") )
             else:
                 self.changelogview.get_buffer().set_text( _("No changelog available for this kernel version. Sorry.") )
 
