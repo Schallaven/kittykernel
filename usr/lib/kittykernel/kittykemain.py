@@ -323,14 +323,6 @@ class KittykeMainWindow():
         # Unset current model, if set; this will empty the list
         self.kerneltree.set_model(None)
 
-        # Load a list of Ubuntu kernels if needed
-        if len(self.kernels_ubuntu) == 0:   
-            self.kernels_ubuntu = kittykecore.get_ubuntu_kernels()
-            self.kernels_ubuntu = kittykecore.apply_blacklist(self.kernels_ubuntu, self.blacklist)
-
-            for index, kernel in enumerate(self.kernels_ubuntu):
-                self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
-
         # Setup a new model: Icon, Major version, Icon (installed), Info, Download Size, Installed Size, Origins, Data index
         model_kernels = Gtk.ListStore(GdkPixbuf.Pixbuf, str, GdkPixbuf.Pixbuf, str, str, str, str, str, int) 
 
