@@ -604,7 +604,10 @@ def ubuntu_kernel_downloaded_files(kernel):
     global debugmode
 
     # Download path
-    downloadto = os.path.expanduser("~/.config/kittykernel")
+    downloadto = os.path.expanduser("~/.config/kittykernel/ubuntu")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(downloadto, exist_ok=True)
 
     no_files = 0
   
@@ -621,39 +624,47 @@ def ubuntu_kernel_downloaded_files(kernel):
     # Return number of files
     return no_files
 
-# Download a Ubuntu kernel; redownload will remove existing files and download them again
+# Download a file for an Ubuntu kernel; redownload will remove existing files and download them again
 # Returns False if there was an exception
-def download_ubuntu_kernel(kernel, redownload = False):
+def download_ubuntu_kernel_file(kernel, index, redownload = False):
     global debugmode
 
+    # File in there?
+    if not 0 <= index < len(kernel['files']):
+        return False
+
     # Download path
-    downloadto = os.path.expanduser("~/.config/kittykernel")
+    downloadto = os.path.expanduser("~/.config/kittykernel/ubuntu")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(downloadto, exist_ok=True)
 
     try:
-        # Download each file; check for existance first; file is tuple (name, date, size)
-        for file in kernel['files']:
-            inputurl = kernel['url'] + file[0]
-            outputfile = downloadto + "/" + file[0]
+        # Download the file; check for existance first; file is tuple (name, date, size)
+        file = kernel['files'][index]
+
+        inputurl = kernel['url'] + file[0]
+        outputfile = downloadto + "/" + file[0]
+
+        if debugmode:
+            print("Download %s to %s" % (file[0], outputfile))
+
+        if os.path.isfile(outputfile) and redownload:
+            os.remove(outputfile)
 
             if debugmode:
-                print("Download %s to %s" % (file[0], outputfile))
+                print("File exists. Removing.")
 
-            if os.path.isfile(outputfile) and redownload:
-                os.remove(outputfile)
-
-                if debugmode:
-                    print("File exists. Removing.")
-
-            if os.path.isfile(outputfile):
-                if debugmode:
-                    print("File exists. Skipping.")
-
-                continue
-
-            (filename, headers) = urllib.request.urlretrieve(inputurl, outputfile)
-
+        if os.path.isfile(outputfile):
             if debugmode:
-                print(filename, headers)
+                print("File exists. Skipping.")      
+            return True      
+
+        (filename, headers) = urllib.request.urlretrieve(inputurl, outputfile)
+
+        if debugmode:
+            print(filename, headers)
+
     except Exception as e:
         if debugmode:
             print (e)

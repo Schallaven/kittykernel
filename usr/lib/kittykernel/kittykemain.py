@@ -789,6 +789,47 @@ class KittykeMainWindow():
             menu.show_all()
             menu.popup(None, None, None, None, event.button, event.time)
 
+    # Download an Ubuntu kernel showing a progress window (in future this could do file by file)
+    def download_ubuntu_kernel(self, kernel, redownload = False):
+        # Prepare progress window
+        dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel downloads files", False)
+        dlg.update(0.0, "Download kernel package files from\n" + kernel['url'])
+
+        num_of_files = len(kernel['files'])
+
+        # Start download
+        for index, file in enumerate(kernel['files']):
+            dlg.update(float(index)/float(num_of_files), "Download kernel package files from\n" + kernel['url'] + "\n\n" 
+                                                            + file[0] + " (" + kittykecore.sizeof_fmt(file[2]) + ")" )
+
+            thread = kittykethreads.Worker_Load_Download_Ubuntu_Kernel(kernel, index, redownload)
+            thread.start()                   
+        
+            # Until the thread is finished, process input (mainly for the dialog)
+            while thread.is_alive():
+                while Gtk.events_pending(): Gtk.main_iteration_do(False)
+
+        # Clean up
+        dlg.update(1.0, "Finished.")
+        dlg.destroy()
+        del dlg    
+
+    # Download a kernel - selecting this means to force redownload if files are already there
+    def on_kernel_download(self, widget):
+        # No kernels in list?
+        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
+            return
+
+        # Get selection
+        model, treeiter = self.kerneltree.get_selection().get_selected()
+
+        # Is something selected?
+        if treeiter != None:
+            index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
+
+            # Ubuntu kernel
+            if self.get_kernel_major_selected() == 'ubuntu mainline':   
+                self.download_ubuntu_kernel(self.kernels_ubuntu[index], redownload = True)
 
     # Installs a kernel
     def on_kernel_install(self, widget):
@@ -805,13 +846,11 @@ class KittykeMainWindow():
 
             # Ubuntu kernel
             if self.get_kernel_major_selected() == 'ubuntu mainline':
-                # Download kernel and install it then
-                kittykecore.debugmode = True
-                kittykecore.download_ubuntu_kernel(self.kernels_ubuntu[index])
-
+                # Download kernel and install it then                
+                self.download_ubuntu_kernel(self.kernels_ubuntu[index])
 
             # Repo kernel
-            else:
+            elif not self.is_special_kernel_group(self.get_kernel_major_selected()):
                 # Is this kernel _not_ installed?
                 if not self.kernels[index]['installed']:
                     # Check free space on /boot

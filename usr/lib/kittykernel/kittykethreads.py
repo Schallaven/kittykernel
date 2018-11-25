@@ -104,4 +104,20 @@ class Worker_Load_Ubuntu_Kernels(threading.Thread):
             self.kernels_ubuntu[index]['version_major'] = 'ubuntu mainline'
         return
 
+# Worker for downloading a Ubuntu kernel
+class Worker_Load_Download_Ubuntu_Kernel(threading.Thread):
+    _kernel = []
+    _index = 0
+    _redownload = False
+
+    def __init__(self, kernel, index, redownload = False):
+        threading.Thread.__init__(self)
+        self._kernel = kernel
+        self._index = index
+        self._redownload = redownload
+
+    def run(self):
+        kittykecore.debugmode = True
+        kittykecore.download_ubuntu_kernel_file(self._kernel, self._index, self._redownload)
+
 
