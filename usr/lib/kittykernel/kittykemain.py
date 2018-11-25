@@ -677,16 +677,26 @@ class KittykeMainWindow():
 
     # Another kernel selected?
     def on_kernelselect(self, selection):
-        # No kernels in list?
-        if len(self.kernels) == 0:
-            return
-            
         # Get selection
         model, treeiter = selection.get_selected()
 
         # Is something selected?
-        if treeiter != None:
-            index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
+        if treeiter == None:
+            return
+
+        index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
+
+        # For Ubuntu kernels just show the "changes" entry
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
+            # Is it a kernel?
+            if 0 <= index < len(self.kernels_ubuntu):
+                self.changelogview.get_buffer().set_text(self.kernels_ubuntu[index]['url'] + "CHANGES\n\n" + self.kernels_ubuntu[index]['changes'])
+
+        # Repo-kernels
+        elif not self.is_special_kernel_group(self.get_kernel_major_selected()):
+            # No kernels in list?
+            if len(self.kernels) == 0:
+                return
 
             # Is it a kernel?
             if 0 <= index < len(self.kernels):
