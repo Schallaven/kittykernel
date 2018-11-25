@@ -272,9 +272,9 @@ class KittykeMainWindow():
     # Is the selected group a special group, i.e. starts with a letter?
     def is_special_kernel_group(self, group_name):
         if len(group_name) == 0:
-            return False
+            return True
 
-        return group_name[0].isnumeric()
+        return not group_name[0].isnumeric()
 
     # Fill in the list of regular kernels (repo)
     def fill_kernel_list_repo(self, selected_major):
@@ -780,7 +780,7 @@ class KittykeMainWindow():
             return
 
         # Right mouse button
-        if event.button == 3 and not self.get_kernel_major_selected() == 'ubuntu mainline':    
+        if event.button == 3 and not self.is_special_kernel_group(self.get_kernel_major_selected()):
 
             # Show kernel group menu   
             menu = self.builder.get_object("menu_kernel_group")
