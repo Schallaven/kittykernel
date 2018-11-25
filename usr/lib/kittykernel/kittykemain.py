@@ -795,19 +795,27 @@ class KittykeMainWindow():
         dlg = kittykeprogress.KittyKeProgressDialog(self.window, "KittyKernel downloads files", False)
         dlg.update(0.0, "Download kernel package files from\n" + kernel['url'])
 
-        num_of_files = len(kernel['files'])
+        size_of_files = 0
+        size_downloaded = 0
+
+        for file in kernel['files']:
+            size_of_files += file[2]
 
         # Start download
-        for index, file in enumerate(kernel['files']):
-            dlg.update(float(index)/float(num_of_files), "Download kernel package files from\n" + kernel['url'] + "\n\n" 
-                                                            + file[0] + " (" + kittykecore.sizeof_fmt(file[2]) + ")" )
-
+        for index, file in enumerate(kernel['files']):         
             thread = kittykethreads.Worker_Load_Download_Ubuntu_Kernel(kernel, index, redownload)
             thread.start()                   
         
             # Until the thread is finished, process input (mainly for the dialog)
             while thread.is_alive():
+                # Check file size and update
+                size_file = kittykecore.get_ubuntu_kernel_file_size(kernel, index)
+                dlg.update(float(size_downloaded + size_file)/float(size_of_files), "Download kernel package files from\n" + kernel['url'] + "\n\n" 
+                                                            + file[0] + " (" + kittykecore.sizeof_fmt(file[2]) + ")" )
+                # Work on
                 while Gtk.events_pending(): Gtk.main_iteration_do(False)
+
+            size_downloaded += kittykecore.get_ubuntu_kernel_file_size(kernel, index)
 
         # Clean up
         dlg.update(1.0, "Finished.")
@@ -888,8 +896,7 @@ class KittykeMainWindow():
 
         # Ubuntu kernel (removing files)
         if self.get_kernel_major_selected() == 'ubuntu mainline':
-            # Download kernel and install it then   
-            kittykecore.debugmode = True             
+            # Download kernel and install it then            
             kittykecore.remove_ubuntu_kernel_files(self.kernels_ubuntu[index])
             self.do_refresh()
 

@@ -677,6 +677,41 @@ def download_ubuntu_kernel_file(kernel, index, redownload = False):
     # Return successfully
     return True
 
+# Check Ubuntu kernel file size
+def get_ubuntu_kernel_file_size(kernel, index):
+    global debugmode
+
+    # File in there?
+    if not 0 <= index < len(kernel['files']):
+        return 0
+
+    # Download path
+    downloadto = os.path.expanduser("~/.config/kittykernel/ubuntu")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(downloadto, exist_ok=True)
+
+    try:
+        # Download the file; check for existance first; file is tuple (name, date, size)
+        file = kernel['files'][index]
+        
+        downloadfile = downloadto + "/" + file[0]        
+
+        if os.path.isfile(downloadfile):
+            if debugmode:
+                print("File exists. Get size: " +  os.path.getsize(downloadfile))      
+            return os.path.getsize(downloadfile)      
+
+    except Exception as e:
+        if debugmode:
+            print (e)
+            print(sys.exc_info())
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+
+    return 0
+
 # Removes the files for this Ubuntu kernel
 def remove_ubuntu_kernel_files(kernel):
     global debugmode
