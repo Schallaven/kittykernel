@@ -116,8 +116,7 @@ class Worker_Load_Download_Ubuntu_Kernel(threading.Thread):
         self._index = index
         self._redownload = redownload
 
-    def run(self):
-        kittykecore.debugmode = True
+    def run(self):        
         kittykecore.download_ubuntu_kernel_file(self._kernel, self._index, self._redownload)
 
 

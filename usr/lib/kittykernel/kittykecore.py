@@ -677,6 +677,45 @@ def download_ubuntu_kernel_file(kernel, index, redownload = False):
     # Return successfully
     return True
 
+# Removes the files for this Ubuntu kernel
+def remove_ubuntu_kernel_files(kernel):
+    global debugmode
+
+    # Download path
+    downloadto = os.path.expanduser("~/.config/kittykernel/ubuntu")
+
+    # Create directory if it does not exist, yet
+    os.makedirs(downloadto, exist_ok=True)
+
+    try:
+        # Remove all files that exists; file is tuple (name, date, size)
+        for file in kernel['files']:     
+            downloadfile = downloadto + "/" + file[0]
+
+            if debugmode:
+                print("Removing %s" % (downloadfile))
+
+            if os.path.isfile(downloadfile):
+                os.remove(downloadfile)
+
+                if debugmode:
+                    print("File exists. Removing.")
+            else:
+                if debugmode:
+                    print("File does not exists. Skipping.")
+
+    except Exception as e:
+        if debugmode:
+            print (e)
+            print(sys.exc_info())
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+        return
+
+    # Return
+    return 
+
 # Download information about ONE specific Ubuntu kernel; suburl is not the complete url but the subdirectory (with final '/');
 # returns an array of one or more kernel packages (for e.g. the generic and lowlatency version of a kernel)
 def get_ubuntu_kernel_info(suburl):

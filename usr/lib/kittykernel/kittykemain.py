@@ -830,6 +830,7 @@ class KittykeMainWindow():
             # Ubuntu kernel
             if self.get_kernel_major_selected() == 'ubuntu mainline':   
                 self.download_ubuntu_kernel(self.kernels_ubuntu[index], redownload = True)
+                self.do_refresh()
 
     # Installs a kernel
     def on_kernel_install(self, widget):
@@ -847,7 +848,8 @@ class KittykeMainWindow():
             # Ubuntu kernel
             if self.get_kernel_major_selected() == 'ubuntu mainline':
                 # Download kernel and install it then                
-                self.download_ubuntu_kernel(self.kernels_ubuntu[index])
+                self.download_ubuntu_kernel(self.kernels_ubuntu[index])       
+                self.do_refresh()
 
             # Repo kernel
             elif not self.is_special_kernel_group(self.get_kernel_major_selected()):
@@ -875,17 +877,24 @@ class KittykeMainWindow():
 
     # Removes a kernel
     def on_kernel_remove(self, widget):
-        # No kernels in list?
-        if len(self.kernels) == 0 and len(self.kernels_ubuntu) == 0:
-            return
-
         # Get selection
         model, treeiter = self.kerneltree.get_selection().get_selected()
 
         # Is something selected?
-        if treeiter != None:
-            index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
+        if treeiter == None:
+            return
+        
+        index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
+        # Ubuntu kernel (removing files)
+        if self.get_kernel_major_selected() == 'ubuntu mainline':
+            # Download kernel and install it then   
+            kittykecore.debugmode = True             
+            kittykecore.remove_ubuntu_kernel_files(self.kernels_ubuntu[index])
+            self.do_refresh()
+
+        # Repo kernel
+        elif not self.is_special_kernel_group(self.get_kernel_major_selected()):
             # Current kernel? Don't touch!
             if self.kernels[index]['active']:
                 return
