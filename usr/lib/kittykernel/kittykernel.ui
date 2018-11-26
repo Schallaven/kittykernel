@@ -480,7 +480,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">Edit _blacklist</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Opens the blacklist in the default editor. Kittykernel needs to be restarted for any changes to take effect.</property>
+                        <property name="tooltip_text" translatable="yes">Opens the blacklist in the default editor.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_blacklistedit" swapped="no"/>
@@ -533,7 +533,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label">gtk-refresh</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Refreshes the list of kernels in the repositories and PPAs without updating the cache.</property>
+                        <property name="tooltip_text" translatable="yes">Refreshes the list of kernels in the repositories, PPAs, and Ubuntu mainline without updating the cache.</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_refresh" swapped="no"/>
@@ -545,7 +545,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">Full refresh incl. _apt</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Updates the apt cache and, subsequently, refreshes the list of kernels in the repositories and PPAs.</property>
+                        <property name="tooltip_text" translatable="yes">Updates the apt cache and, subsequently, refreshes the list of kernels in the repositories, PPAs, and Ubuntu mainline.</property>
                         <property name="use_underline">True</property>
                         <property name="image">image2</property>
                         <property name="use_stock">False</property>
@@ -563,7 +563,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                         <property name="label" translatable="yes">_Purge all kernels</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">Purges all repository kernels (not the Ubuntu kernels) from the hard disk.</property>
+                        <property name="tooltip_text" translatable="yes">Purges all installed repository kernels from the hard disk.</property>
                         <property name="use_underline">True</property>
                         <property name="image">image7</property>
                         <property name="use_stock">False</property>

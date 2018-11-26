@@ -1,0 +1,26 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="kernellist">
+<info>
+ <link type="guide" xref="index#userinterface"/>
+ <desc>Description of the kernel list (the right panel) of the main window.</desc>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
+<title>Kernel list</title>
+
+<p>The right panel of the main window shows the kernels in the currently selected <link xref="kernelgroups">kernel group</link>.</p>
+
+<media type="image" src="kernellist.png"/>
+
+<p>Each entry contains information about a specifc kernel namely version, package name, download size, disk size, and the origin. Moreover, it shows if the kernel is downloaded (but not installed), installed, and active.</p>
+
+<p>The context menu of a kernel entry allows to install, download, remove, and purge the respective kernel. Options vary depending on the status and origin of the kernel.</p>
+
+
+</page>

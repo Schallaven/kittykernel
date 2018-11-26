@@ -1,0 +1,24 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="kernelinfo">
+<info>
+ <link type="guide" xref="index#userinterface"/>
+ <desc>Description of the kernel info area (the bottom panel) of the main window.</desc>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
+<title>Kernel info area</title>
+
+<p>The bottom panel of the main window shows information on the currently selected <link xref="kernelgroups">kernel group</link> or <link xref="kernellist">kernel</link>.</p>
+
+<media type="image" src="kernelinfo.png"/>
+
+<p>For kernels from the repository the info window shows the changelog and scrolls automatically to the respective entry. For Ubuntu mainline kernels the info window shows the respective <file>CHANGES</file> file.</p>
+
+
+</page>

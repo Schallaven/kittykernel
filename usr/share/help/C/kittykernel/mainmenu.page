@@ -3,7 +3,7 @@
       id="menus">
 <info>
  <link type="guide" xref="index#userinterface"/>
- <desc>A list of all menu items in the main menu and context menus.</desc>
+ <desc>A list of all menu items in the main menu.</desc>
  <credit type="author">
   <name>Sven Kochmann</name>
  </credit>
@@ -12,11 +12,7 @@
  </license>
 </info>
 
-<title>Kittykernel - Menus</title>
-
-<p>
-Description about menus
-</p>
+<title>Main menu</title>
 
 <section>
  <title>Kittykernel</title>
@@ -25,7 +21,10 @@ Description about menus
    <p>Opens the <link xref="preferences">preference dialog</link>.</p>
   </item>
   <item><title>Edit blacklist</title>
-   <p>Opens the <link xref="blacklist">blacklist</link> located at <code>~/.config/kittykernel/blacklist</code> in the default editor. Kittykernel needs to be restarted for any changes to take effect.</p>
+   <p>Opens the <link xref="blacklist">blacklist</link> located at <file>~/.config/kittykernel/blacklist</file> in the default editor. Please refresh to see any effect on the kernel list.</p>
+  </item>
+  <item><title>Reset blacklist</title>
+   <p>Replaced the <link xref="blacklist">blacklist</link> located at <file>~/.config/kittykernel/blacklist</file> with the default one located at <file>/usr/lib/kittykernel/blacklist_default</file>. Please refresh to see any effect on the kernel list.</p>
   </item>
   <item><title>Quit</title>
    <p>Closes Kittykernel.</p>
@@ -37,16 +36,13 @@ Description about menus
  <title>Kernels</title>
  <terms>
  <item><title>Refresh</title>
-   <p>Refreshes the list of kernels in the repositories and PPAs without updating the cache.</p>
+   <p>Refreshes the list of kernels from the repositories, PPAs, and the Ubuntu mainline without updating the cache.</p>
   </item>
   <item><title>Full refresh incl. apt</title>
-   <p>Updates the apt cache and, subsequently, refreshes the list of kernels in the repositories and PPAs.</p>
-  </item>
-  <item><title>Refresh Ubuntu kernels</title>
-   <p>Updates the list of Ubuntu mainline kernels from <code>http://kernel.ubuntu.com/~kernel-ppa/mainline/</code></p>
+   <p>Updates the apt cache and, subsequently, refreshes the list of kernels from the repositories, PPAs, and the Ubuntu mainline.</p>
   </item>
   <item><title>Purge all kernels</title>
-   <p>Purges all repository kernels (not the Ubuntu kernels) from the hard disk.</p>
+   <p>Purges all installed kernels from the hard disk.</p>
   </item>
  </terms>
 </section>

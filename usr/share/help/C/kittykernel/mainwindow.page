@@ -1,0 +1,27 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="mainwindow">
+<info>
+ <link type="guide" xref="index#userinterface"/>
+ <desc>An overview of the main window.</desc>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
+<title>Main window</title>
+
+<p>The following screenshot shows an overview of KittyKernel's main window. The main window is divided into three main sections, namely the kernel group list (A), the kernel list (B), and the information area (C).</p>
+
+<media type="image" src="kittykernel.png"/>
+
+<p>The <link xref="kernelgroups">kernel group list</link> (A) of the main window shows the major versions of the kernels available on the system as well as some special groups. By clicking on a group the <link xref="kernellist">kernel list</link> (B) will show the respective kernels in this group. Selecting a group or kernel will show additional information in the <link xref="kernelinfo">bottom area</link> (C) if available.</p>
+
+<p>Furthermore, the info bar at the top of the main window shows the current kernel as well as the occupied and available space on <file>/boot</file> in the info bar on the top. The button opens <file>/boot</file> using the default file manager.</p>
+
+<media type="image" src="infobar.png"/>
+
+</page>

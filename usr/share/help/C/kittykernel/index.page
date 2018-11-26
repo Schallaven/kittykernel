@@ -18,7 +18,7 @@ a modern and intuitive graphical user interface for advanced beginners as well a
 </p>
 
 <p>
-This guide gives a short overview of all the features and how to use them. You are reading Kittykernel guide version 0.517.
+This guide gives a short overview of all the features and how to use them. You are reading Kittykernel guide version 0.601.
 </p>
 
 <note style="warning">
@@ -28,11 +28,6 @@ This guide gives a short overview of all the features and how to use them. You a
 <section id="userinterface">
  <title>User interface</title>
  <p>This section explains all the user interface features.</p>
-</section>
-
-<section id="mechanics">
- <title>Core mechanics</title>
- <p>This section explains the mechanics of Kittykernel.</p>
 </section>
 
 </page>

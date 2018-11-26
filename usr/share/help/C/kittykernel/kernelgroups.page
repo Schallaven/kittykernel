@@ -1,0 +1,27 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      type="guide"
+      id="kernelgroups">
+<info>
+ <link type="guide" xref="index#userinterface"/>
+ <desc>Description of the kernel group list (the left panel) of the main window.</desc>
+ <credit type="author">
+  <name>Sven Kochmann</name>
+ </credit>
+ <license xmlns="http://projectmallard.org/1.0/" href="http://creativecommons.org/licenses/by-sa/3.0/">
+  <p>CC-BY-SA 3.0</p>
+ </license>
+</info>
+
+<title>Kernel groups</title>
+
+<p>The left panel of the main window shows the major versions of the kernels available on the system as well as some special groups. By clicking on a group the <link xref="kernellist">right panel</link> will show the respective kernels in this group.</p>
+
+<media type="image" src="kernelgroups.png"/>
+
+<p>Each group that refers to <em>a major version</em> shows a tuple of three numbers, i.e. <code>(X, Y, Z)</code>. <code>X</code>, <code>Y</code>, and <code>Z</code> are the number of downloaded kernels, installed kernels, and total available kernels in this group, respectively. The installed kernels are not counted as downloaded kernels. Furthermore, a group shows the support status if available or <code>---</code> otherwise. A context menu is available to allow the removal or purge of all kernels in the respective group.</p>
+
+<p>The special group <em>Show installed kernels</em> will show all installed kernels for convenience. The group also shows the total number of installed kernels.</p>
+
+<p><em>Ubuntu mainline kernels archive</em> allows to access all mainline kernels from Ubuntu that are not available in the repositories. Note that these kernels are not supported and not appropriate for production use.</p>
+
+</page>
