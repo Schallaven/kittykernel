@@ -686,17 +686,24 @@ class KittykeMainWindow():
 
         index = model[treeiter][Columns.KITTYKE_DATA_INDEX.value]
 
+        selected_major = self.get_kernel_major_selected()
+
         # For Ubuntu kernels just show the "changes" entry
-        if self.get_kernel_major_selected() == 'ubuntu mainline':
+        if selected_major == 'ubuntu mainline':
             # Is it a kernel?
             if 0 <= index < len(self.kernels_ubuntu):
-                self.changelogview.get_buffer().set_text(self.kernels_ubuntu[index]['url'] + "CHANGES\n\n" + self.kernels_ubuntu[index]['changes'])
+                self.changelogview.get_buffer().set_text(self.kernels_ubuntu[index]['url'] + "CHANGES\n\n" + self.kernels_ubuntu[index]['changes'])        
 
         # Repo-kernels
-        elif not self.is_special_kernel_group(self.get_kernel_major_selected()):
+        elif not self.is_special_kernel_group(selected_major) or selected_major == 'kernels_installed':
             # No kernels in list?
             if len(self.kernels) == 0:
                 return
+
+            # For special groups such as "all installed kernels" we have to load actually the right changelog first
+            if selected_major == 'kernels_installed':
+                if self.kernels[index]['version_major'] in self.changelogs:
+                    self.changelogview.get_buffer().set_text(self.changelogs[self.kernels[index]['version_major']])
 
             # Is it a kernel?
             if 0 <= index < len(self.kernels):
